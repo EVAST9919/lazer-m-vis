@@ -19,4 +19,7 @@
     <PackageReference Include="ppy.osu.Framework" Version="2020.331.0" />
     <PackageReference Include="ppy.osu.Game" Version="2020.327.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="UI\Objects\Helpers\" />
+  </ItemGroup>
 </Project>

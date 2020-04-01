@@ -4,7 +4,9 @@
 using System;
 using osu.Framework.Graphics;
 using osu.Game.Beatmaps;
+using osu.Game.Graphics.Containers;
 using osu.Game.Rulesets.Mvis.Objects;
+using osu.Game.Rulesets.Mvis.UI.Objects;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.UI;
 
@@ -16,7 +18,16 @@ namespace osu.Game.Rulesets.Mvis.UI
         {
             InternalChildren = new Drawable[]
             {
-                HitObjectContainer
+                HitObjectContainer,
+                new SpaceParticlesContainer(),
+                new ParallaxContainer
+                {
+                    ParallaxAmount = -0.0025f,
+                    Child = new BeatmapLogo
+                    {
+                        Anchor = Anchor.Centre,
+                    }
+                }
             };
         }
     }
