@@ -10,6 +10,7 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Effects;
 using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
+using System;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
@@ -23,7 +24,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private BeatmapBackground background;
         private BeatmapName name;
-
         public UpdateableBeatmapBackground()
         {
             AddRangeInternal(new Drawable[]
@@ -119,6 +119,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             {
                 RelativeSizeAxes = Axes.Both;
                 RelativePositionAxes = Axes.Y;
+                float songTitleFontSize = 260/Math.Max(getShortTitle(beatmap.Metadata.Title).Length,beatmap.Metadata.Artist.Length);
+                float songArtistNameFontSize = songTitleFontSize-6;
 
                 if (beatmap == null)
                     return;
@@ -136,7 +138,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Font = OsuFont.GetFont(size: 26, weight: FontWeight.SemiBold),
+                            Font = OsuFont.GetFont(size: songArtistNameFontSize, weight: FontWeight.SemiBold),
                             Text = beatmap.Metadata.Artist,
                             Shadow = false,
                         },
@@ -144,7 +146,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
+                            Font = OsuFont.GetFont(size: songTitleFontSize),
                             Text = getShortTitle(beatmap.Metadata.Title),
                             Shadow = false,
                         }
