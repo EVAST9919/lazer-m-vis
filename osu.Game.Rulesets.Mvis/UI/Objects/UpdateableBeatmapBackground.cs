@@ -164,12 +164,31 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             /// <returns></returns>
             private string getShortTitle(string longTitle)
             {
-                if (!longTitle.Contains("("))
-                    return longTitle;
+                var newTitle = longTitle;
 
-                var bracketIndex = longTitle.IndexOf('(');
-                return longTitle.Substring(0, bracketIndex);
+                for (int i = 0; i < title_chars.Length; i++)
+                {
+                    if (newTitle.Contains(title_chars[i]))
+                    {
+                        var charIndex = newTitle.IndexOf(title_chars[i]);
+
+                        if (charIndex != 0)
+                            newTitle = newTitle.Substring(0, charIndex);
+                    }
+                }
+
+                if (newTitle.EndsWith(" "))
+                    newTitle = newTitle.Substring(0, newTitle.Length - 1);
+
+                return newTitle;
             }
+
+            private static readonly char[] title_chars = new[]
+            {
+                '(',
+                '-',
+                '~'
+            };
         }
     }
 }
