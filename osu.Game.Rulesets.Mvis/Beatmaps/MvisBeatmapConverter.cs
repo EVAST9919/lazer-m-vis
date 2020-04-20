@@ -23,7 +23,11 @@ namespace osu.Game.Rulesets.Mvis.Beatmaps
             switch (obj)
             {
                 default:
-                    return new MvisHitObject().Yield();
+                    return new MvisHitObject
+                    {
+                        StartTime = obj.StartTime,
+                        Samples = obj.Samples
+                    }.Yield();
             }
         }
     }

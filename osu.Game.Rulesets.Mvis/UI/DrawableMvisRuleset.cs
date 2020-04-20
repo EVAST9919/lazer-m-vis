@@ -25,6 +25,15 @@ namespace osu.Game.Rulesets.Reza.UI
 
         protected override Playfield CreatePlayfield() => new MvisPlayfield(Beatmap.BeatmapInfo.BaseDifficulty, CreateDrawableRepresentation);
 
-        public override DrawableHitObject<MvisHitObject> CreateDrawableRepresentation(MvisHitObject h) => new DrawableMvisHitObject(h);
+        public override DrawableHitObject<MvisHitObject> CreateDrawableRepresentation(MvisHitObject h)
+        {
+            switch (h)
+            {
+                case MvisHitObject hitObject:
+                    return new DrawableMvisHitObject(hitObject);
+            }
+
+            return null;
+        }
     }
 }
