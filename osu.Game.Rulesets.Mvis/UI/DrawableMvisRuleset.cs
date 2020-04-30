@@ -4,10 +4,13 @@
 using System.Collections.Generic;
 using osu.Framework.Input;
 using osu.Game.Beatmaps;
+using osu.Game.Input.Handlers;
+using osu.Game.Replays;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Mvis;
 using osu.Game.Rulesets.Mvis.Objects;
 using osu.Game.Rulesets.Mvis.Objects.Drawables;
+using osu.Game.Rulesets.Mvis.Replays;
 using osu.Game.Rulesets.Mvis.UI;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.UI;
@@ -24,6 +27,10 @@ namespace osu.Game.Rulesets.Reza.UI
         protected override PassThroughInputManager CreateInputManager() => new MvisInputManager(Ruleset.RulesetInfo);
 
         protected override Playfield CreatePlayfield() => new MvisPlayfield(Beatmap.BeatmapInfo.BaseDifficulty, CreateDrawableRepresentation);
+
+        protected override ReplayRecorder CreateReplayRecorder(Replay replay) => new MvisReplayRecorder();
+
+        protected override ReplayInputHandler CreateReplayInputHandler(Replay replay) => new MvisFramedReplayInputHandler(replay);
 
         public override DrawableHitObject<MvisHitObject> CreateDrawableRepresentation(MvisHitObject h)
         {

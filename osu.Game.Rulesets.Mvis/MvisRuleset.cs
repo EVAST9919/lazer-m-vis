@@ -1,7 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
-// See the LICENCE file in the repository root for full licence text.
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Beatmaps;
@@ -15,6 +12,10 @@ using osu.Game.Rulesets.Reza.UI;
 using osu.Game.Rulesets.Mvis.Scoring;
 using osu.Game.Rulesets.Mvis.Beatmaps;
 using osu.Game.Rulesets.Mvis.Difficulty;
+using osu.Game.Rulesets.Replays.Types;
+using osu.Game.Rulesets.Mvis.Replays;
+using osu.Game.Beatmaps.Legacy;
+using osu.Game.Rulesets.Mvis.Mods;
 
 namespace osu.Game.Rulesets.Mvis
 {
@@ -26,7 +27,9 @@ namespace osu.Game.Rulesets.Mvis
 
         public override IBeatmapConverter CreateBeatmapConverter(IBeatmap beatmap) => new MvisBeatmapConverter(beatmap, this);
 
-        public override IEnumerable<Mod> GetModsFor(ModType type) => Array.Empty<Mod>();
+        public override HealthProcessor CreateHealthProcessor(double drainStartTime) =>new MvisHealthProcessor();
+
+        public override IConvertibleReplayFrame CreateConvertibleReplayFrame() => new MvisReplayFrame();
 
         public override string Description => "osu!mvis";
 
@@ -40,5 +43,26 @@ namespace osu.Game.Rulesets.Mvis
         };
 
         public override DifficultyCalculator CreateDifficultyCalculator(WorkingBeatmap beatmap) => new MvisDifficultyCalculator(this, beatmap);
+
+        public override IEnumerable<Mod> ConvertFromLegacyMods(LegacyMods mods)
+        {
+            if (mods.HasFlag(LegacyMods.Autoplay))
+                yield return new MvisModAutoplay();
+        }
+
+        public override IEnumerable<Mod> GetModsFor(ModType type)
+        {
+            switch (type)
+            {
+                case ModType.Automation:
+                    return new Mod[]
+                    {
+                        new MvisModAutoplay(),
+                    };
+
+                default:
+                    return Array.Empty<Mod>();
+            }
+        }
     }
 }

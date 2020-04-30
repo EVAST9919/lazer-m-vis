@@ -1,7 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
-// See the LICENCE file in the repository root for full licence text.
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Game.Beatmaps;
 using osu.Game.Rulesets.Mvis.Objects;
@@ -17,6 +14,8 @@ namespace osu.Game.Rulesets.Mvis.Beatmaps
         }
 
         public override bool CanConvert() => true;
+
+        protected override Beatmap<MvisHitObject> CreateBeatmap() => new MvisBeatmap();
 
         protected override IEnumerable<MvisHitObject> ConvertHitObject(HitObject obj, IBeatmap beatmap)
         {
