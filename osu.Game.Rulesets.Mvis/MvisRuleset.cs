@@ -14,8 +14,6 @@ using osu.Game.Rulesets.Mvis.Beatmaps;
 using osu.Game.Rulesets.Mvis.Difficulty;
 using osu.Game.Rulesets.Replays.Types;
 using osu.Game.Rulesets.Mvis.Replays;
-using osu.Game.Beatmaps.Legacy;
-using osu.Game.Rulesets.Mvis.Mods;
 
 namespace osu.Game.Rulesets.Mvis
 {
@@ -44,25 +42,6 @@ namespace osu.Game.Rulesets.Mvis
 
         public override DifficultyCalculator CreateDifficultyCalculator(WorkingBeatmap beatmap) => new MvisDifficultyCalculator(this, beatmap);
 
-        public override IEnumerable<Mod> ConvertFromLegacyMods(LegacyMods mods)
-        {
-            if (mods.HasFlag(LegacyMods.Autoplay))
-                yield return new MvisModAutoplay();
-        }
-
-        public override IEnumerable<Mod> GetModsFor(ModType type)
-        {
-            switch (type)
-            {
-                case ModType.Automation:
-                    return new Mod[]
-                    {
-                        new MvisModAutoplay(),
-                    };
-
-                default:
-                    return Array.Empty<Mod>();
-            }
-        }
+        public override IEnumerable<Mod> GetModsFor(ModType type) => Array.Empty<Mod>();
     }
 }

@@ -14,6 +14,8 @@ using osu.Game.Rulesets.Mvis.Replays;
 using osu.Game.Rulesets.Mvis.UI;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.UI;
+using osu.Game.Scoring;
+using osu.Game.Users;
 
 namespace osu.Game.Rulesets.Reza.UI
 {
@@ -32,6 +34,8 @@ namespace osu.Game.Rulesets.Reza.UI
 
         protected override ReplayInputHandler CreateReplayInputHandler(Replay replay) => new MvisFramedReplayInputHandler(replay);
 
+        public override bool AllowGameplayOverlays => false;
+
         public override DrawableHitObject<MvisHitObject> CreateDrawableRepresentation(MvisHitObject h)
         {
             switch (h)
@@ -41,6 +45,17 @@ namespace osu.Game.Rulesets.Reza.UI
             }
 
             return null;
+        }
+
+        protected override void LoadComplete()
+        {
+            SetReplayScore(new Score
+            {
+                ScoreInfo = new ScoreInfo { User = new User { Username = "bosu!" } },
+                Replay = new MvisAutoGenerator(Beatmap).Generate(),
+            });
+
+            base.LoadComplete();
         }
     }
 }
