@@ -12,8 +12,6 @@ using osu.Game.Rulesets.Reza.UI;
 using osu.Game.Rulesets.Mvis.Scoring;
 using osu.Game.Rulesets.Mvis.Beatmaps;
 using osu.Game.Rulesets.Mvis.Difficulty;
-using osu.Game.Rulesets.Replays.Types;
-using osu.Game.Rulesets.Mvis.Replays;
 using osu.Game.Rulesets.Mvis.Mods;
 using osu.Game.Rulesets.Configuration;
 using osu.Game.Configuration;
@@ -32,8 +30,6 @@ namespace osu.Game.Rulesets.Mvis
         public override IBeatmapConverter CreateBeatmapConverter(IBeatmap beatmap) => new MvisBeatmapConverter(beatmap, this);
 
         public override HealthProcessor CreateHealthProcessor(double drainStartTime) => new MvisHealthProcessor();
-
-        public override IConvertibleReplayFrame CreateConvertibleReplayFrame() => new MvisReplayFrame();
 
         public override IRulesetConfigManager CreateConfig(SettingsStore settings) => new MvisRulesetConfigManager(settings, RulesetInfo);
 
