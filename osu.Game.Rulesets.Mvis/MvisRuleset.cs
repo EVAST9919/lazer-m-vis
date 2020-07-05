@@ -15,6 +15,11 @@ using osu.Game.Rulesets.Mvis.Difficulty;
 using osu.Game.Rulesets.Replays.Types;
 using osu.Game.Rulesets.Mvis.Replays;
 using osu.Game.Rulesets.Mvis.Mods;
+using osu.Game.Rulesets.Configuration;
+using osu.Game.Configuration;
+using osu.Game.Rulesets.Mvis.Configuration;
+using osu.Game.Overlays.Settings;
+using osu.Game.Rulesets.Mvis.UI;
 
 namespace osu.Game.Rulesets.Mvis
 {
@@ -30,7 +35,11 @@ namespace osu.Game.Rulesets.Mvis
 
         public override IConvertibleReplayFrame CreateConvertibleReplayFrame() => new MvisReplayFrame();
 
-        public override string Description => "osu!mvis";
+        public override IRulesetConfigManager CreateConfig(SettingsStore settings) => new MvisRulesetConfigManager(settings, RulesetInfo);
+
+        public override RulesetSettingsSubsection CreateSettings() => new MvisSettingsSubsection(this);
+
+        public override string Description => "mvis";
 
         public override string ShortName => "mvis";
 

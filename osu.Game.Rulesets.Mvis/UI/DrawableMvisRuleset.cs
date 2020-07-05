@@ -28,7 +28,7 @@ namespace osu.Game.Rulesets.Reza.UI
 
         protected override PassThroughInputManager CreateInputManager() => new MvisInputManager(Ruleset.RulesetInfo);
 
-        protected override Playfield CreatePlayfield() => new MvisPlayfield(Beatmap.BeatmapInfo.BaseDifficulty, CreateDrawableRepresentation);
+        protected override Playfield CreatePlayfield() => new MvisPlayfield();
 
         protected override ReplayRecorder CreateReplayRecorder(Replay replay) => new MvisReplayRecorder();
 
