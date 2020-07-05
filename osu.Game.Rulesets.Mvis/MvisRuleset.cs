@@ -14,6 +14,7 @@ using osu.Game.Rulesets.Mvis.Beatmaps;
 using osu.Game.Rulesets.Mvis.Difficulty;
 using osu.Game.Rulesets.Replays.Types;
 using osu.Game.Rulesets.Mvis.Replays;
+using osu.Game.Rulesets.Mvis.Mods;
 
 namespace osu.Game.Rulesets.Mvis
 {
@@ -25,7 +26,7 @@ namespace osu.Game.Rulesets.Mvis
 
         public override IBeatmapConverter CreateBeatmapConverter(IBeatmap beatmap) => new MvisBeatmapConverter(beatmap, this);
 
-        public override HealthProcessor CreateHealthProcessor(double drainStartTime) =>new MvisHealthProcessor();
+        public override HealthProcessor CreateHealthProcessor(double drainStartTime) => new MvisHealthProcessor();
 
         public override IConvertibleReplayFrame CreateConvertibleReplayFrame() => new MvisReplayFrame();
 
@@ -42,6 +43,20 @@ namespace osu.Game.Rulesets.Mvis
 
         public override DifficultyCalculator CreateDifficultyCalculator(WorkingBeatmap beatmap) => new MvisDifficultyCalculator(this, beatmap);
 
-        public override IEnumerable<Mod> GetModsFor(ModType type) => Array.Empty<Mod>();
+        public override IEnumerable<Mod> GetModsFor(ModType type)
+        {
+            switch (type)
+            {
+                case ModType.Fun:
+                    return new Mod[]
+                    {
+                        new MultiMod(new MvisModHalfTime(), new MvisModDaycore()),
+                        new MultiMod(new MvisModDoubleTime(), new MvisModNightcore()),
+                    };
+
+                default:
+                    return Array.Empty<Mod>();
+            }
+        }
     }
 }
