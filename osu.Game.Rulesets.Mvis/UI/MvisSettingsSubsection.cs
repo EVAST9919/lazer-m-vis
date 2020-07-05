@@ -25,7 +25,26 @@ namespace osu.Game.Rulesets.Mvis.UI
                 {
                     LabelText = "Show particles",
                     Bindable = config.GetBindable<bool>(MvisRulesetSetting.ShowParticles)
-                }
+                },
+                new SettingsSlider<int>
+                {
+                    LabelText = "Visulizer amount",
+                    Bindable = config.GetBindable<int>(MvisRulesetSetting.VisualizerAmount),
+                    TransferValueOnCommit = true
+                },
+                new SettingsSlider<double>
+                {
+                    LabelText = "Bar width",
+                    Bindable = config.GetBindable<double>(MvisRulesetSetting.BarWidth),
+                    KeyboardStep = 0.1f,
+                    TransferValueOnCommit = true
+                },
+                new SettingsSlider<int>
+                {
+                    LabelText = "Bars per visual",
+                    Bindable = config.GetBindable<int>(MvisRulesetSetting.BarsPerVisual),
+                    TransferValueOnCommit = true
+                },
             };
         }
     }

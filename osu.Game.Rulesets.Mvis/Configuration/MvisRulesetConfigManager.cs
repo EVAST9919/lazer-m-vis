@@ -14,11 +14,17 @@ namespace osu.Game.Rulesets.Mvis.Configuration
         {
             base.InitialiseDefaults();
             Set(MvisRulesetSetting.ShowParticles, true);
+            Set(MvisRulesetSetting.VisualizerAmount, 3, 1, 5);
+            Set(MvisRulesetSetting.BarWidth, 3.0, 1, 20);
+            Set(MvisRulesetSetting.BarsPerVisual, 120, 1, 200);
         }
     }
 
     public enum MvisRulesetSetting
     {
         ShowParticles,
+        VisualizerAmount,
+        BarWidth,
+        BarsPerVisual
     }
 }
