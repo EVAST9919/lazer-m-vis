@@ -85,6 +85,9 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
                 case BarType.Rounded:
                     return new CircularBar();
+
+                case BarType.Fall:
+                    return new FallBar();
             }
 
             throw new NotSupportedException("Selected bar is not implemented");

@@ -35,6 +35,7 @@ namespace osu.Game.Rulesets.Mvis.Configuration
     public enum BarType
     {
         Basic,
-        Rounded
+        Rounded,
+        Fall
     }
 }
