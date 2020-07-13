@@ -24,6 +24,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private readonly Bindable<int> visuals = new Bindable<int>(3);
         private readonly Bindable<double> barWidth = new Bindable<double>(3.0);
         private readonly Bindable<int> barCount = new Bindable<int>(120);
+        private readonly Bindable<int> rotation = new Bindable<int>(0);
 
         private readonly Bindable<bool> useCustomColour = new Bindable<bool>();
         private readonly Bindable<int> red = new Bindable<int>(0);
@@ -70,14 +71,16 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             config?.BindWith(MvisRulesetSetting.VisualizerAmount, visuals);
             config?.BindWith(MvisRulesetSetting.BarWidth, barWidth);
             config?.BindWith(MvisRulesetSetting.BarsPerVisual, barCount);
-
-            barCount.BindValueChanged(_ => updateVisuals());
-            visuals.BindValueChanged(_ => updateVisuals(), true);
+            config?.BindWith(MvisRulesetSetting.Rotation, rotation);
 
             config?.BindWith(MvisRulesetSetting.Red, red);
             config?.BindWith(MvisRulesetSetting.Green, green);
             config?.BindWith(MvisRulesetSetting.Blue, blue);
             config?.BindWith(MvisRulesetSetting.UseCustomColour, useCustomColour);
+
+            barCount.BindValueChanged(_ => updateVisuals());
+            visuals.BindValueChanged(_ => updateVisuals(), true);
+            rotation.BindValueChanged(e => placeholder.Rotation = e.NewValue, true);
 
             red.BindValueChanged(_ => updateColour());
             green.BindValueChanged(_ => updateColour());

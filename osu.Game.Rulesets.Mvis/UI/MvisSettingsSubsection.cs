@@ -35,6 +35,7 @@ namespace osu.Game.Rulesets.Mvis.UI
                 {
                     LabelText = "Particles count",
                     Bindable = config.GetBindable<int>(MvisRulesetSetting.ParticlesCount),
+                    KeyboardStep = 1,
                     TransferValueOnCommit = true
                 },
                 new SettingsEnumDropdown<BarType>
@@ -46,6 +47,7 @@ namespace osu.Game.Rulesets.Mvis.UI
                 {
                     LabelText = "Visulizer amount",
                     Bindable = config.GetBindable<int>(MvisRulesetSetting.VisualizerAmount),
+                    KeyboardStep = 1,
                     TransferValueOnCommit = true
                 },
                 new SettingsSlider<double>
@@ -58,7 +60,14 @@ namespace osu.Game.Rulesets.Mvis.UI
                 {
                     LabelText = "Bars per visual",
                     Bindable = config.GetBindable<int>(MvisRulesetSetting.BarsPerVisual),
+                    KeyboardStep = 1,
                     TransferValueOnCommit = true
+                },
+                new SettingsSlider<int>
+                {
+                    LabelText = "Rotation",
+                    KeyboardStep = 1,
+                    Bindable = config.GetBindable<int>(MvisRulesetSetting.Rotation)
                 },
                 customColourCheckbox = new SettingsCheckbox
                 {
@@ -82,15 +91,18 @@ namespace osu.Game.Rulesets.Mvis.UI
                             new SettingsSlider<int>
                             {
                                 LabelText = "Red",
+                                KeyboardStep = 1,
                                 Bindable = config.GetBindable<int>(MvisRulesetSetting.Red)
                             },
                             new SettingsSlider<int>
                             {
                                 LabelText = "Green",
+                                KeyboardStep = 1,
                                 Bindable = config.GetBindable<int>(MvisRulesetSetting.Green)
                             },
                             new SettingsSlider<int>
                             {
+                                KeyboardStep = 1,
                                 LabelText = "Blue",
                                 Bindable = config.GetBindable<int>(MvisRulesetSetting.Blue)
                             }
