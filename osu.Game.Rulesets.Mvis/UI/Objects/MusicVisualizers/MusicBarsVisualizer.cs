@@ -1,12 +1,19 @@
-﻿using osu.Framework.Extensions.IEnumerableExtensions;
+﻿using osu.Framework.Allocation;
+using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars;
+using System;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
     public abstract class MusicBarsVisualizer : MusicAmplitudesProvider
     {
-        protected virtual BasicBar CreateBar() => new BasicBar();
+        [Resolved(canBeNull: true)]
+        private MvisRulesetConfigManager config { get; set; }
+
+        private readonly Bindable<BarType> type = new Bindable<BarType>(BarType.Rounded);
 
         public int Smoothness { get; set; } = 200;
 
@@ -43,6 +50,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
         public float ValueMultiplier { get; set; } = 400;
 
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            config?.BindWith(MvisRulesetSetting.BarType, type);
+            type.BindValueChanged(_ => resetBars(), true);
+        }
+
         protected virtual void ClearBars() => Clear(true);
 
         private void resetBars()
@@ -57,20 +71,28 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             EqualizerBars = new BasicBar[barsCount];
             for (int i = 0; i < barsCount; i++)
             {
-                EqualizerBars[i] = CreateBar();
-                EqualizerBars[i].Width = barWidth;
+                EqualizerBars[i] = getBar();
+                EqualizerBars[i].Width = BarWidth;
             }
+        }
+
+        private BasicBar getBar()
+        {
+            switch (type.Value)
+            {
+                case BarType.Basic:
+                    return new BasicBar();
+
+                case BarType.Rounded:
+                    return new CircularBar();
+            }
+
+            throw new NotSupportedException("Selected bar is not implemented");
         }
 
         protected BasicBar[] EqualizerBars;
 
         public bool IsReversed { get; set; }
-
-        protected override void LoadComplete()
-        {
-            resetBars();
-            base.LoadComplete();
-        }
 
         protected virtual void AddBars() => EqualizerBars.ForEach(Add);
 

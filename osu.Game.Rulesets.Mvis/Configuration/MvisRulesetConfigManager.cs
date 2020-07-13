@@ -15,6 +15,7 @@ namespace osu.Game.Rulesets.Mvis.Configuration
             base.InitialiseDefaults();
             Set(MvisRulesetSetting.ShowParticles, true);
             Set(MvisRulesetSetting.ParticlesCount, 200, 100, 300);
+            Set(MvisRulesetSetting.BarType, BarType.Rounded);
             Set(MvisRulesetSetting.VisualizerAmount, 3, 1, 5);
             Set(MvisRulesetSetting.BarWidth, 3.0, 1, 20);
             Set(MvisRulesetSetting.BarsPerVisual, 120, 1, 200);
@@ -27,6 +28,13 @@ namespace osu.Game.Rulesets.Mvis.Configuration
         ParticlesCount,
         VisualizerAmount,
         BarWidth,
-        BarsPerVisual
+        BarsPerVisual,
+        BarType
+    }
+
+    public enum BarType
+    {
+        Basic,
+        Rounded
     }
 }

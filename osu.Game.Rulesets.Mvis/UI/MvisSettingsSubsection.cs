@@ -32,6 +32,11 @@ namespace osu.Game.Rulesets.Mvis.UI
                     Bindable = config.GetBindable<int>(MvisRulesetSetting.ParticlesCount),
                     TransferValueOnCommit = true
                 },
+                new SettingsEnumDropdown<BarType>
+                {
+                    LabelText = "Bar type",
+                    Bindable = config.GetBindable<BarType>(MvisRulesetSetting.BarType)
+                },
                 new SettingsSlider<int>
                 {
                     LabelText = "Visulizer amount",

@@ -7,7 +7,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers;
-using osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars;
 using osuTK;
 using osuTK.Graphics;
 
@@ -77,7 +76,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             for (int i = 0; i < visuals.Value; i++)
             {
-                placeholder.Add(new CircularVisualizer
+                placeholder.Add(new MusicCircularVisualizer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -97,11 +96,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             var track = Beatmap.Value?.Track;
 
             progressGlow.Current.Value = track == null ? 0 : (float)(track.CurrentTime / track.Length);
-        }
-
-        private class CircularVisualizer : MusicCircularVisualizer
-        {
-            protected override BasicBar CreateBar() => new CircularBar();
         }
     }
 }
