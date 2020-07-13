@@ -17,7 +17,7 @@ namespace osu.Game.Rulesets.Mvis.UI
         }
 
         private SettingsCheckbox customColourCheckbox;
-        private FillFlowContainer colourSliders;
+        private Container resizableContainer;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -66,29 +66,35 @@ namespace osu.Game.Rulesets.Mvis.UI
                     LabelText = "Use custom accent colour",
                     Bindable = config.GetBindable<bool>(MvisRulesetSetting.UseCustomColour)
                 },
-                colourSliders = new FillFlowContainer
+                resizableContainer = new Container
                 {
                     RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(0, 5),
-                    Alpha = 0,
-                    Children = new Drawable[]
+                    AutoSizeDuration = 200,
+                    AutoSizeEasing = Easing.OutQuint,
+                    Masking = true,
+                    Child = new FillFlowContainer
                     {
-                        new SettingsSlider<int>
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 5),
+                        Children = new Drawable[]
                         {
-                            LabelText = "Red",
-                            Bindable = config.GetBindable<int>(MvisRulesetSetting.Red)
-                        },
-                        new SettingsSlider<int>
-                        {
-                            LabelText = "Green",
-                            Bindable = config.GetBindable<int>(MvisRulesetSetting.Green)
-                        },
-                        new SettingsSlider<int>
-                        {
-                            LabelText = "Blue",
-                            Bindable = config.GetBindable<int>(MvisRulesetSetting.Blue)
+                            new SettingsSlider<int>
+                            {
+                                LabelText = "Red",
+                                Bindable = config.GetBindable<int>(MvisRulesetSetting.Red)
+                            },
+                            new SettingsSlider<int>
+                            {
+                                LabelText = "Green",
+                                Bindable = config.GetBindable<int>(MvisRulesetSetting.Green)
+                            },
+                            new SettingsSlider<int>
+                            {
+                                LabelText = "Blue",
+                                Bindable = config.GetBindable<int>(MvisRulesetSetting.Blue)
+                            }
                         }
                     }
                 }
@@ -101,8 +107,19 @@ namespace osu.Game.Rulesets.Mvis.UI
 
             customColourCheckbox.Bindable.BindValueChanged(useCustom =>
             {
-                colourSliders.FadeTo(useCustom.NewValue ? 1 : 0);
+                if (useCustom.NewValue)
+                {
+                    resizableContainer.ClearTransforms();
+                    resizableContainer.AutoSizeAxes = Axes.Y;
+                }
+                else
+                {
+                    resizableContainer.AutoSizeAxes = Axes.None;
+                    resizableContainer.ResizeHeightTo(0, 200, Easing.OutQuint);
+                }
             }, true);
+
+            resizableContainer.FinishTransforms();
         }
     }
 }
