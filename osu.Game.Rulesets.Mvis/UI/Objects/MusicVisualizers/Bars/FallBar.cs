@@ -3,13 +3,18 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using osuTK.Graphics;
+using System.Collections.Generic;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
 {
     public class FallBar : BasicBar
     {
+        protected override IEnumerable<Drawable> ColourReceptors => new[] { main, piece };
+
         private Container mainBar;
         private Container fallingPiece;
+        private Box main;
+        private Box piece;
 
         protected override Drawable CreateContent() => new Container
         {
@@ -21,7 +26,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
                 {
                     Origin = Anchor.BottomCentre,
                     RelativeSizeAxes = Axes.X,
-                    Child = new Box
+                    Child = main = new Box
                     {
                         RelativeSizeAxes = Axes.Both,
                         Colour = Color4.White,
@@ -33,7 +38,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
                     Origin = Anchor.BottomCentre,
                     RelativeSizeAxes = Axes.X,
                     Height = 2,
-                    Child = new Box
+                    Child = piece = new Box
                     {
                         RelativeSizeAxes = Axes.Both,
                         Colour = Color4.White,

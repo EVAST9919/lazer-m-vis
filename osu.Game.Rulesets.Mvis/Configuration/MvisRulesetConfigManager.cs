@@ -19,6 +19,10 @@ namespace osu.Game.Rulesets.Mvis.Configuration
             Set(MvisRulesetSetting.VisualizerAmount, 3, 1, 5);
             Set(MvisRulesetSetting.BarWidth, 3.0, 1, 20);
             Set(MvisRulesetSetting.BarsPerVisual, 120, 1, 200);
+            Set(MvisRulesetSetting.UseCustomColour, false);
+            Set(MvisRulesetSetting.Red, 0, 0, 255);
+            Set(MvisRulesetSetting.Green, 0, 0, 255);
+            Set(MvisRulesetSetting.Blue, 0, 0, 255);
         }
     }
 
@@ -29,7 +33,11 @@ namespace osu.Game.Rulesets.Mvis.Configuration
         VisualizerAmount,
         BarWidth,
         BarsPerVisual,
-        BarType
+        BarType,
+        UseCustomColour,
+        Red,
+        Green,
+        Blue
     }
 
     public enum BarType

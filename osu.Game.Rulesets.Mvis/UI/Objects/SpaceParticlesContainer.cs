@@ -3,8 +3,10 @@ using osu.Framework.Graphics.Shapes;
 using osuTK;
 using osuTK.Graphics;
 using System;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Utils;
+using osu.Framework.Allocation;
+using osu.Game.Rulesets.Mvis.Configuration;
+using osu.Framework.Bindables;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
@@ -24,6 +26,14 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private class Particle : Circle
         {
+            [Resolved(canBeNull: true)]
+            private MvisRulesetConfigManager config { get; set; }
+
+            private readonly Bindable<bool> useCustomColour = new Bindable<bool>();
+            private readonly Bindable<int> red = new Bindable<int>(0);
+            private readonly Bindable<int> green = new Bindable<int>(0);
+            private readonly Bindable<int> blue = new Bindable<int>(0);
+
             private Vector2 finalPosition;
             private double lifeTime;
             private float finalScale;
@@ -33,8 +43,32 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 Anchor = Anchor.Centre;
                 Origin = Anchor.Centre;
                 RelativePositionAxes = Axes.Both;
-                Colour = Color4.White.Opacity(200);
                 Size = new Vector2(2);
+            }
+
+            [BackgroundDependencyLoader]
+            private void load()
+            {
+                config?.BindWith(MvisRulesetSetting.Red, red);
+                config?.BindWith(MvisRulesetSetting.Green, green);
+                config?.BindWith(MvisRulesetSetting.Blue, blue);
+                config?.BindWith(MvisRulesetSetting.UseCustomColour, useCustomColour);
+
+                red.BindValueChanged(_ => updateColour());
+                green.BindValueChanged(_ => updateColour());
+                blue.BindValueChanged(_ => updateColour());
+                useCustomColour.BindValueChanged(_ => updateColour(), true);
+            }
+
+            private void updateColour()
+            {
+                if (!useCustomColour.Value)
+                {
+                    Colour = Color4.White;
+                    return;
+                }
+
+                this.FadeColour(new Colour4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1));
             }
 
             protected override void LoadComplete()

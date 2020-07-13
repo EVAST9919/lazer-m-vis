@@ -23,7 +23,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private readonly Bindable<double> barWidth = new Bindable<double>(3.0);
         private readonly Bindable<int> barCount = new Bindable<int>(120);
 
+        private readonly Bindable<bool> useCustomColour = new Bindable<bool>();
+        private readonly Bindable<int> red = new Bindable<int>(0);
+        private readonly Bindable<int> green = new Bindable<int>(0);
+        private readonly Bindable<int> blue = new Bindable<int>(0);
+
         private CircularProgress progressGlow;
+        private GlowEffect glow;
         private Container placeholder;
 
         [BackgroundDependencyLoader]
@@ -51,7 +57,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     InnerRadius = 0.02f,
-                }).WithEffect(new GlowEffect
+                }).WithEffect(glow = new GlowEffect
                 {
                     Colour = Color4.White,
                     Strength = 5,
@@ -66,6 +72,29 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             barWidth.BindValueChanged(_ => updateVisuals());
             barCount.BindValueChanged(_ => updateVisuals());
             visuals.BindValueChanged(_ => updateVisuals(), true);
+
+            config?.BindWith(MvisRulesetSetting.Red, red);
+            config?.BindWith(MvisRulesetSetting.Green, green);
+            config?.BindWith(MvisRulesetSetting.Blue, blue);
+            config?.BindWith(MvisRulesetSetting.UseCustomColour, useCustomColour);
+
+            red.BindValueChanged(_ => updateColour());
+            green.BindValueChanged(_ => updateColour());
+            blue.BindValueChanged(_ => updateColour());
+            useCustomColour.BindValueChanged(_ => updateColour(), true);
+        }
+
+        private void updateColour()
+        {
+            if (!useCustomColour.Value)
+            {
+                progressGlow.Colour = Color4.White;
+                glow.Colour = Color4.White;
+                return;
+            }
+
+            progressGlow.FadeColour(new Colour4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1));
+            glow.Colour = new Colour4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1);
         }
 
         private void updateVisuals()

@@ -1,7 +1,9 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Mvis.Configuration;
+using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI
 {
@@ -13,6 +15,9 @@ namespace osu.Game.Rulesets.Mvis.UI
             : base(ruleset)
         {
         }
+
+        private SettingsCheckbox customColourCheckbox;
+        private FillFlowContainer colourSliders;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -56,7 +61,48 @@ namespace osu.Game.Rulesets.Mvis.UI
                     Bindable = config.GetBindable<int>(MvisRulesetSetting.BarsPerVisual),
                     TransferValueOnCommit = true
                 },
+                customColourCheckbox = new SettingsCheckbox
+                {
+                    LabelText = "Use custom accent colour",
+                    Bindable = config.GetBindable<bool>(MvisRulesetSetting.UseCustomColour)
+                },
+                colourSliders = new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 5),
+                    Alpha = 0,
+                    Children = new Drawable[]
+                    {
+                        new SettingsSlider<int>
+                        {
+                            LabelText = "Red",
+                            Bindable = config.GetBindable<int>(MvisRulesetSetting.Red)
+                        },
+                        new SettingsSlider<int>
+                        {
+                            LabelText = "Green",
+                            Bindable = config.GetBindable<int>(MvisRulesetSetting.Green)
+                        },
+                        new SettingsSlider<int>
+                        {
+                            LabelText = "Blue",
+                            Bindable = config.GetBindable<int>(MvisRulesetSetting.Blue)
+                        }
+                    }
+                }
             };
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            customColourCheckbox.Bindable.BindValueChanged(useCustom =>
+            {
+                colourSliders.FadeTo(useCustom.NewValue ? 1 : 0);
+            }, true);
         }
     }
 }
