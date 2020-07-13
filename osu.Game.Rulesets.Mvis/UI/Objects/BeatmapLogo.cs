@@ -9,6 +9,8 @@ using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers;
 using osuTK;
 using osuTK.Graphics;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
@@ -96,15 +98,17 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             glow.Colour = new Colour4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1);
         }
 
+        private CancellationTokenSource cancellationTokenSource;
+
         private void updateVisuals()
         {
-            placeholder.Clear();
+            var drawableVisuals = new List<MusicCircularVisualizer>();
 
             var degree = 360f / visuals.Value;
 
             for (int i = 0; i < visuals.Value; i++)
             {
-                placeholder.Add(new MusicCircularVisualizer
+                drawableVisuals.Add(new MusicCircularVisualizer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -115,6 +119,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                     CircleSize = radius,
                 });
             }
+
+            LoadComponentsAsync(drawableVisuals, loaded =>
+            {
+                placeholder.Clear();
+                placeholder.AddRange(loaded);
+            }, (cancellationTokenSource = new CancellationTokenSource()).Token);
         }
 
         protected override void Update()
@@ -124,6 +134,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             var track = Beatmap.Value?.Track;
 
             progressGlow.Current.Value = track == null ? 0 : (float)(track.CurrentTime / track.Length);
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            cancellationTokenSource?.Cancel();
+            base.Dispose(isDisposing);
         }
     }
 }
