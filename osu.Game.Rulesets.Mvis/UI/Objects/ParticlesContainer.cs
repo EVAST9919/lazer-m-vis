@@ -1,4 +1,7 @@
-﻿using osu.Framework.Graphics;
+﻿using osu.Framework.Allocation;
+using osu.Framework.Bindables;
+using osu.Framework.Graphics;
+using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using System.Collections.Generic;
 using System.Threading;
@@ -7,10 +10,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
     public abstract class ParticlesContainer : CurrentRateContainer
     {
-        /// <summary>
-        /// Maximum allowed amount of particles which can be shown at once.
-        /// </summary>
-        protected virtual int MaxParticlesCount => 350;
+        [Resolved(canBeNull: true)]
+        private MvisRulesetConfigManager config { get; set; }
+
+        private readonly Bindable<int> countBindable = new Bindable<int>(200);
 
         protected ParticlesContainer()
         {
@@ -19,19 +22,27 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             RelativeSizeAxes = Axes.Both;
         }
 
-        protected override void LoadComplete()
+        [BackgroundDependencyLoader]
+        private void load()
         {
-            base.LoadComplete();
-            generateParticles();
+            config?.BindWith(MvisRulesetSetting.ParticlesCount, countBindable);
+            countBindable.BindValueChanged(onCountChanged, true);
+        }
+
+        private void onCountChanged(ValueChangedEvent<int> e)
+        {
+            cancellationToken?.Cancel();
+            Clear();
+            generateParticles(e.NewValue);
         }
 
         private CancellationTokenSource cancellationToken;
 
-        private void generateParticles()
+        private void generateParticles(int count)
         {
             var particles = new List<Drawable>();
 
-            for (int i = 0; i < MaxParticlesCount; i++)
+            for (int i = 0; i < count; i++)
                 particles.Add(CreateParticle());
 
             LoadComponentsAsync(particles, AddRange, (cancellationToken = new CancellationTokenSource()).Token);

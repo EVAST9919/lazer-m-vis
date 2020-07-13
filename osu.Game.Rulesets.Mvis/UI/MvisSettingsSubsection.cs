@@ -28,6 +28,12 @@ namespace osu.Game.Rulesets.Mvis.UI
                 },
                 new SettingsSlider<int>
                 {
+                    LabelText = "Particles count",
+                    Bindable = config.GetBindable<int>(MvisRulesetSetting.ParticlesCount),
+                    TransferValueOnCommit = true
+                },
+                new SettingsSlider<int>
+                {
                     LabelText = "Visulizer amount",
                     Bindable = config.GetBindable<int>(MvisRulesetSetting.VisualizerAmount),
                     TransferValueOnCommit = true
