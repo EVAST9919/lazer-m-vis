@@ -14,6 +14,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         private MvisRulesetConfigManager config { get; set; }
 
         private readonly Bindable<BarType> type = new Bindable<BarType>(BarType.Rounded);
+        private readonly Bindable<double> barWidthBindable = new Bindable<double>(3.0);
 
         public int Smoothness { get; set; } = 200;
 
@@ -27,6 +28,14 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
                 if (!IsLoaded)
                     return;
+
+                if (type.Value == BarType.Rounded)
+                {
+                    foreach (var bar in EqualizerBars)
+                        ((CircularBar)bar).Width = value;
+
+                    return;
+                }
 
                 foreach (var bar in EqualizerBars)
                     bar.Width = value;
@@ -54,6 +63,9 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         private void load()
         {
             config?.BindWith(MvisRulesetSetting.BarType, type);
+            config?.BindWith(MvisRulesetSetting.BarWidth, barWidthBindable);
+
+            barWidthBindable.BindValueChanged(width => BarWidth = (float)width.NewValue);
             type.BindValueChanged(_ => resetBars(), true);
         }
 

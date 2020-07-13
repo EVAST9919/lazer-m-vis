@@ -2,6 +2,16 @@
 {
     public class CircularBar : BasicBar
     {
+        public new float Width
+        {
+            get => base.Width;
+            set
+            {
+                base.Width = value;
+                CornerRadius = value / 2;
+            }
+        }
+
         public CircularBar()
         {
             Masking = true;

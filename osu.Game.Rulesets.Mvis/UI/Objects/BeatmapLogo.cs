@@ -69,7 +69,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             config?.BindWith(MvisRulesetSetting.BarWidth, barWidth);
             config?.BindWith(MvisRulesetSetting.BarsPerVisual, barCount);
 
-            barWidth.BindValueChanged(_ => updateVisuals());
             barCount.BindValueChanged(_ => updateVisuals());
             visuals.BindValueChanged(_ => updateVisuals(), true);
 

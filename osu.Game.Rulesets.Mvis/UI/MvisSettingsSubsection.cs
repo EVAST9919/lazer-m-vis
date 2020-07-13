@@ -52,8 +52,7 @@ namespace osu.Game.Rulesets.Mvis.UI
                 {
                     LabelText = "Bar width",
                     Bindable = config.GetBindable<double>(MvisRulesetSetting.BarWidth),
-                    KeyboardStep = 0.1f,
-                    TransferValueOnCommit = true
+                    KeyboardStep = 0.1f
                 },
                 new SettingsSlider<int>
                 {
