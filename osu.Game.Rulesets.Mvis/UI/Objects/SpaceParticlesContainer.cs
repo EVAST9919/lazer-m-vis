@@ -49,7 +49,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 Position = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f));
                 calculateValues();
 
-                this.FadeIn(500);
+                this.FadeIn(lifeTime > 500 ? 500 : lifeTime);
                 this.MoveTo(finalPosition, lifeTime);
                 this.ScaleTo(finalScale, lifeTime).Finally(_ => Reuse());
             }
