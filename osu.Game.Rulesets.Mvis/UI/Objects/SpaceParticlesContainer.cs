@@ -20,7 +20,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         /// </summary>
         private const float particle_max_scale = 3;
 
-        protected override Drawable CreateParticle(bool firstLoad) => new Particle();
+        protected override Drawable CreateParticle() => new Particle();
 
         private class Particle : Circle
         {
@@ -34,21 +34,24 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 Origin = Anchor.Centre;
                 RelativePositionAxes = Axes.Both;
                 Colour = Color4.White.Opacity(200);
-                Position = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f));
                 Size = new Vector2(2);
-                Alpha = 0;
             }
 
             protected override void LoadComplete()
             {
                 base.LoadComplete();
+                Reuse();
+            }
 
+            public void Reuse()
+            {
+                Alpha = 0;
+                Position = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f));
                 calculateValues();
 
                 this.FadeIn(500);
                 this.MoveTo(finalPosition, lifeTime);
-                this.ScaleTo(finalScale, lifeTime);
-                Expire();
+                this.ScaleTo(finalScale, lifeTime).Finally(_ => Reuse());
             }
 
             private void calculateValues()

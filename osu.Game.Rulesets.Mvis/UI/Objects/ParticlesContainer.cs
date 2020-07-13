@@ -1,15 +1,12 @@
 ﻿using osu.Framework.Graphics;
 using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
     public abstract class ParticlesContainer : CurrentRateContainer
     {
-        /// <summary>
-        /// Number of milliseconds between addition of a new particle.
-        /// </summary>
-        private const float time_between_updates = 50;
-
         /// <summary>
         /// Maximum allowed amount of particles which can be shown at once.
         /// </summary>
@@ -25,22 +22,27 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            generateParticles(true);
+            generateParticles();
         }
 
-        private void generateParticles(bool firstLoad)
+        private CancellationTokenSource cancellationToken;
+
+        private void generateParticles()
         {
-            var currentParticlesCount = Children.Count;
+            var particles = new List<Drawable>();
 
-            if (currentParticlesCount < MaxParticlesCount)
-            {
-                for (int i = 0; i < MaxParticlesCount - currentParticlesCount; i++)
-                    Add(CreateParticle(firstLoad));
-            }
+            for (int i = 0; i < MaxParticlesCount; i++)
+                particles.Add(CreateParticle());
 
-            Scheduler.AddDelayed(() => generateParticles(false), time_between_updates);
+            LoadComponentsAsync(particles, AddRange, (cancellationToken = new CancellationTokenSource()).Token);
         }
 
-        protected abstract Drawable CreateParticle(bool firstLoad);
+        protected abstract Drawable CreateParticle();
+
+        protected override void Dispose(bool isDisposing)
+        {
+            cancellationToken?.Cancel();
+            base.Dispose(isDisposing);
+        }
     }
 }
