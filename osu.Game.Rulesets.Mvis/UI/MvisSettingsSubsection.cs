@@ -29,37 +29,37 @@ namespace osu.Game.Rulesets.Mvis.UI
                 new SettingsCheckbox
                 {
                     LabelText = "Show particles",
-                    Bindable = config.GetBindable<bool>(MvisRulesetSetting.ShowParticles)
+                    Current = config.GetBindable<bool>(MvisRulesetSetting.ShowParticles)
                 },
                 new SettingsSlider<int>
                 {
                     LabelText = "Particles count",
-                    Bindable = config.GetBindable<int>(MvisRulesetSetting.ParticlesCount),
+                    Current = config.GetBindable<int>(MvisRulesetSetting.ParticlesCount),
                     KeyboardStep = 1,
                     TransferValueOnCommit = true
                 },
                 new SettingsEnumDropdown<BarType>
                 {
                     LabelText = "Bar type",
-                    Bindable = config.GetBindable<BarType>(MvisRulesetSetting.BarType)
+                    Current = config.GetBindable<BarType>(MvisRulesetSetting.BarType)
                 },
                 new SettingsSlider<int>
                 {
                     LabelText = "Visulizer amount",
-                    Bindable = config.GetBindable<int>(MvisRulesetSetting.VisualizerAmount),
+                    Current = config.GetBindable<int>(MvisRulesetSetting.VisualizerAmount),
                     KeyboardStep = 1,
                     TransferValueOnCommit = true
                 },
                 new SettingsSlider<double>
                 {
                     LabelText = "Bar width",
-                    Bindable = config.GetBindable<double>(MvisRulesetSetting.BarWidth),
+                    Current = config.GetBindable<double>(MvisRulesetSetting.BarWidth),
                     KeyboardStep = 0.1f
                 },
                 new SettingsSlider<int>
                 {
                     LabelText = "Bars per visual",
-                    Bindable = config.GetBindable<int>(MvisRulesetSetting.BarsPerVisual),
+                    Current = config.GetBindable<int>(MvisRulesetSetting.BarsPerVisual),
                     KeyboardStep = 1,
                     TransferValueOnCommit = true
                 },
@@ -67,12 +67,12 @@ namespace osu.Game.Rulesets.Mvis.UI
                 {
                     LabelText = "Rotation",
                     KeyboardStep = 1,
-                    Bindable = config.GetBindable<int>(MvisRulesetSetting.Rotation)
+                    Current = config.GetBindable<int>(MvisRulesetSetting.Rotation)
                 },
                 customColourCheckbox = new SettingsCheckbox
                 {
                     LabelText = "Use custom accent colour",
-                    Bindable = config.GetBindable<bool>(MvisRulesetSetting.UseCustomColour)
+                    Current = config.GetBindable<bool>(MvisRulesetSetting.UseCustomColour)
                 },
                 resizableContainer = new Container
                 {
@@ -92,19 +92,19 @@ namespace osu.Game.Rulesets.Mvis.UI
                             {
                                 LabelText = "Red",
                                 KeyboardStep = 1,
-                                Bindable = config.GetBindable<int>(MvisRulesetSetting.Red)
+                                Current = config.GetBindable<int>(MvisRulesetSetting.Red)
                             },
                             new SettingsSlider<int>
                             {
                                 LabelText = "Green",
                                 KeyboardStep = 1,
-                                Bindable = config.GetBindable<int>(MvisRulesetSetting.Green)
+                                Current = config.GetBindable<int>(MvisRulesetSetting.Green)
                             },
                             new SettingsSlider<int>
                             {
                                 KeyboardStep = 1,
                                 LabelText = "Blue",
-                                Bindable = config.GetBindable<int>(MvisRulesetSetting.Blue)
+                                Current = config.GetBindable<int>(MvisRulesetSetting.Blue)
                             }
                         }
                     }
@@ -116,7 +116,7 @@ namespace osu.Game.Rulesets.Mvis.UI
         {
             base.LoadComplete();
 
-            customColourCheckbox.Bindable.BindValueChanged(useCustom =>
+            customColourCheckbox.Current.BindValueChanged(useCustom =>
             {
                 if (useCustom.NewValue)
                 {

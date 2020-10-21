@@ -9,7 +9,6 @@ using osu.Game.Rulesets.UI;
 using System;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Rulesets.Reza.UI;
-using osu.Game.Rulesets.Mvis.Scoring;
 using osu.Game.Rulesets.Mvis.Beatmaps;
 using osu.Game.Rulesets.Mvis.Difficulty;
 using osu.Game.Rulesets.Mvis.Mods;
@@ -25,11 +24,7 @@ namespace osu.Game.Rulesets.Mvis
     {
         public override DrawableRuleset CreateDrawableRulesetWith(IBeatmap beatmap, IReadOnlyList<Mod> mods = null) => new DrawableMvisRuleset(this, beatmap, mods);
 
-        public override ScoreProcessor CreateScoreProcessor() => new MvisScoreProcessor();
-
         public override IBeatmapConverter CreateBeatmapConverter(IBeatmap beatmap) => new MvisBeatmapConverter(beatmap, this);
-
-        public override HealthProcessor CreateHealthProcessor(double drainStartTime) => new MvisHealthProcessor();
 
         public override IRulesetConfigManager CreateConfig(SettingsStore settings) => new MvisRulesetConfigManager(settings, RulesetInfo);
 
@@ -63,5 +58,10 @@ namespace osu.Game.Rulesets.Mvis
                     return Array.Empty<Mod>();
             }
         }
+
+        protected override IEnumerable<HitResult> GetValidHitResults() => new[]
+        {
+            HitResult.Perfect
+        };
     }
 }

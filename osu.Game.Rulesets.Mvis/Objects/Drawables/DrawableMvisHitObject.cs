@@ -5,8 +5,6 @@ namespace osu.Game.Rulesets.Mvis.Objects.Drawables
 {
     public class DrawableMvisHitObject : DrawableHitObject<MvisHitObject>
     {
-        protected sealed override double InitialLifetimeOffset => HitObject.TimePreempt;
-
         public DrawableMvisHitObject(MvisHitObject h)
             : base(h)
         {
@@ -16,17 +14,6 @@ namespace osu.Game.Rulesets.Mvis.Objects.Drawables
         {
             if (timeOffset > 0)
                 ApplyResult(r => r.Type = HitResult.Perfect);
-        }
-
-        protected override void UpdateStateTransforms(ArmedState state)
-        {
-            switch (state)
-            {
-                case ArmedState.Idle:
-                    // Manually set to reduce the number of future alive objects to a bare minimum.
-                    LifetimeStart = HitObject.StartTime - HitObject.TimePreempt;
-                    break;
-            }
         }
     }
 }

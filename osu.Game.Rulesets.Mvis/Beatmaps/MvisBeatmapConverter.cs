@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Game.Beatmaps;
 using osu.Game.Rulesets.Mvis.Objects;
@@ -17,7 +18,7 @@ namespace osu.Game.Rulesets.Mvis.Beatmaps
 
         protected override Beatmap<MvisHitObject> CreateBeatmap() => new MvisBeatmap();
 
-        protected override IEnumerable<MvisHitObject> ConvertHitObject(HitObject obj, IBeatmap beatmap)
+        protected override IEnumerable<MvisHitObject> ConvertHitObject(HitObject obj, IBeatmap beatmap, CancellationToken token)
         {
             switch (obj)
             {
