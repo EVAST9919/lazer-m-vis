@@ -16,8 +16,8 @@
     <None Remove="Resources\Samples\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Framework" Version="2020.1019.0" />
-    <PackageReference Include="ppy.osu.Game" Version="2020.1020.0" />
+    <PackageReference Include="ppy.osu.Framework" Version="2020.1113.0" />
+    <PackageReference Include="ppy.osu.Game" Version="2020.1114.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="UI\Objects\Helpers\" />
