@@ -1,23 +1,18 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
-// See the LICENCE file in the repository root for full licence text.
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using osu.Framework.Input;
 using osu.Game.Beatmaps;
 using osu.Game.Input.Handlers;
 using osu.Game.Replays;
 using osu.Game.Rulesets.Mods;
-using osu.Game.Rulesets.Mvis;
 using osu.Game.Rulesets.Mvis.Objects;
 using osu.Game.Rulesets.Mvis.Objects.Drawables;
 using osu.Game.Rulesets.Mvis.Replays;
-using osu.Game.Rulesets.Mvis.UI;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.UI;
 using osu.Game.Scoring;
 using osu.Game.Users;
 
-namespace osu.Game.Rulesets.Reza.UI
+namespace osu.Game.Rulesets.Mvis.UI
 {
     public class DrawableMvisRuleset : DrawableRuleset<MvisHitObject>
     {
@@ -30,7 +25,7 @@ namespace osu.Game.Rulesets.Reza.UI
 
         protected override Playfield CreatePlayfield() => new MvisPlayfield();
 
-        protected override ReplayRecorder CreateReplayRecorder(Replay replay) => new MvisReplayRecorder();
+        protected override ReplayRecorder CreateReplayRecorder(Score score) => new MvisReplayRecorder();
 
         protected override ReplayInputHandler CreateReplayInputHandler(Replay replay) => new MvisFramedReplayInputHandler(replay);
 
@@ -51,7 +46,7 @@ namespace osu.Game.Rulesets.Reza.UI
         {
             SetReplayScore(new Score
             {
-                ScoreInfo = new ScoreInfo { User = new User { Username = "bosu!" } },
+                ScoreInfo = new ScoreInfo { User = new User { Username = "mvis" } },
                 Replay = new MvisAutoGenerator(Beatmap).Generate(),
             });
 

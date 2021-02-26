@@ -8,7 +8,7 @@ using osu.Game.Rulesets.Scoring;
 using osu.Game.Rulesets.UI;
 using System;
 using osu.Framework.Graphics.Textures;
-using osu.Game.Rulesets.Reza.UI;
+using osu.Game.Rulesets.Mvis.UI;
 using osu.Game.Rulesets.Mvis.Beatmaps;
 using osu.Game.Rulesets.Mvis.Difficulty;
 using osu.Game.Rulesets.Mvis.Mods;
@@ -16,7 +16,6 @@ using osu.Game.Rulesets.Configuration;
 using osu.Game.Configuration;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Overlays.Settings;
-using osu.Game.Rulesets.Mvis.UI;
 
 namespace osu.Game.Rulesets.Mvis
 {
