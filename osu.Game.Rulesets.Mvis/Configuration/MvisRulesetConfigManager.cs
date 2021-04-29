@@ -13,17 +13,17 @@ namespace osu.Game.Rulesets.Mvis.Configuration
         protected override void InitialiseDefaults()
         {
             base.InitialiseDefaults();
-            Set(MvisRulesetSetting.ShowParticles, true);
-            Set(MvisRulesetSetting.ParticlesCount, 200, 100, 300);
-            Set(MvisRulesetSetting.BarType, BarType.Rounded);
-            Set(MvisRulesetSetting.VisualizerAmount, 3, 1, 5);
-            Set(MvisRulesetSetting.BarWidth, 3.0, 1, 20);
-            Set(MvisRulesetSetting.BarsPerVisual, 120, 1, 200);
-            Set(MvisRulesetSetting.Rotation, 0, 0, 359);
-            Set(MvisRulesetSetting.UseCustomColour, false);
-            Set(MvisRulesetSetting.Red, 0, 0, 255);
-            Set(MvisRulesetSetting.Green, 0, 0, 255);
-            Set(MvisRulesetSetting.Blue, 0, 0, 255);
+            SetDefault(MvisRulesetSetting.ShowParticles, true);
+            SetDefault(MvisRulesetSetting.ParticlesCount, 200, 100, 300);
+            SetDefault(MvisRulesetSetting.BarType, BarType.Rounded);
+            SetDefault(MvisRulesetSetting.VisualizerAmount, 3, 1, 5);
+            SetDefault(MvisRulesetSetting.BarWidth, 3.0, 1, 20);
+            SetDefault(MvisRulesetSetting.BarsPerVisual, 120, 1, 200);
+            SetDefault(MvisRulesetSetting.Rotation, 0, 0, 359);
+            SetDefault(MvisRulesetSetting.UseCustomColour, false);
+            SetDefault(MvisRulesetSetting.Red, 0, 0, 255);
+            SetDefault(MvisRulesetSetting.Green, 0, 0, 255);
+            SetDefault(MvisRulesetSetting.Blue, 0, 0, 255);
         }
     }
 
