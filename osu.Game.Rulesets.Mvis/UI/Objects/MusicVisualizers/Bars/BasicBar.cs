@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
 {
-    public class BasicBar : Container
+    public class BasicBar : CompositeDrawable
     {
         protected virtual IEnumerable<Drawable> ColourReceptors => new[] { box };
 
@@ -24,7 +24,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
 
         public BasicBar()
         {
-            Child = CreateContent();
+            InternalChild = CreateContent();
         }
 
         [BackgroundDependencyLoader]
@@ -43,16 +43,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
 
         private void updateColour()
         {
-            if (!useCustomColour.Value)
-            {
-                foreach (var r in ColourReceptors)
-                    r.Colour = Color4.White;
-
-                return;
-            }
-
             foreach (var r in ColourReceptors)
-                r.FadeColour(new Colour4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1));
+                r.Colour = useCustomColour.Value ? new Color4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1) : Color4.White;
         }
 
         private Box box;
@@ -72,7 +64,9 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
             if (newHeight <= Height)
                 return;
 
-            this.ResizeHeightTo(newHeight).Then().ResizeHeightTo(0, softness);
+            ClearTransforms();
+            Height = newHeight;
+            this.ResizeHeightTo(0, softness);
         }
 
         protected virtual float ValueFormula(float amplitudeValue, float valueMultiplier) => amplitudeValue * valueMultiplier;

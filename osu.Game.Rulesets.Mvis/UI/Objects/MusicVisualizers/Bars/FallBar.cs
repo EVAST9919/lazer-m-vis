@@ -11,8 +11,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
     {
         protected override IEnumerable<Drawable> ColourReceptors => new[] { main, piece };
 
-        private Container mainBar;
-        private Container fallingPiece;
         private Box main;
         private Box piece;
 
@@ -22,28 +20,20 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
             RelativeSizeAxes = Axes.X,
             Children = new Drawable[]
             {
-                mainBar = new Container
+                main = new Box
                 {
                     Origin = Anchor.BottomCentre,
                     RelativeSizeAxes = Axes.X,
-                    Child = main = new Box
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.White,
-                        EdgeSmoothness = Vector2.One,
-                    }
+                    Colour = Color4.White,
+                    EdgeSmoothness = Vector2.One,
                 },
-                fallingPiece = new Container
+                piece = new Box
                 {
                     Origin = Anchor.BottomCentre,
                     RelativeSizeAxes = Axes.X,
-                    Height = 2,
-                    Child = piece = new Box
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.White,
-                        EdgeSmoothness = Vector2.One,
-                    }
+                    Height = 1,
+                    Colour = Color4.White,
+                    EdgeSmoothness = Vector2.One,
                 }
             },
         };
@@ -52,16 +42,16 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers.Bars
         {
             var newValue = ValueFormula(amplitudeValue, valueMultiplier);
 
-            if (newValue > mainBar.Height)
+            if (newValue > main.Height)
             {
-                mainBar.ResizeHeightTo(newValue)
+                main.ResizeHeightTo(newValue)
                     .Then()
                     .ResizeHeightTo(0, smoothness);
             }
 
-            if (mainBar.Height > -fallingPiece.Y)
+            if (main.Height > -piece.Y)
             {
-                fallingPiece.MoveToY(-newValue)
+                piece.MoveToY(-newValue)
                     .Then()
                     .MoveToY(0, smoothness * 6);
             }
