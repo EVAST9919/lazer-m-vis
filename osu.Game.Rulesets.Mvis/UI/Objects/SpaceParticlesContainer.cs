@@ -1,5 +1,4 @@
 ﻿using osu.Framework.Graphics;
-using osu.Framework.Graphics.Shapes;
 using osuTK;
 using osuTK.Graphics;
 using System;
@@ -7,6 +6,8 @@ using osu.Framework.Utils;
 using osu.Framework.Allocation;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Framework.Bindables;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
@@ -24,7 +25,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         protected override Drawable CreateParticle() => new Particle();
 
-        private class Particle : Circle
+        private class Particle : Sprite
         {
             [Resolved(canBeNull: true)]
             private MvisRulesetConfigManager config { get; set; }
@@ -47,8 +48,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             }
 
             [BackgroundDependencyLoader]
-            private void load()
+            private void load(TextureStore textures)
             {
+                Texture = textures.Get("particle");
+
                 config?.BindWith(MvisRulesetSetting.Red, red);
                 config?.BindWith(MvisRulesetSetting.Green, green);
                 config?.BindWith(MvisRulesetSetting.Blue, blue);
