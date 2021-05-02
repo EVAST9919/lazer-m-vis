@@ -1,10 +1,11 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics.Containers;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Rulesets.Mvis.UI.Objects;
+using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using osu.Game.Rulesets.UI;
 
 namespace osu.Game.Rulesets.Mvis.UI
@@ -14,9 +15,12 @@ namespace osu.Game.Rulesets.Mvis.UI
         [Resolved(canBeNull: true)]
         private MvisRulesetConfigManager config { get; set; }
 
+        [Resolved]
+        private TextureStore textures { get; set; }
+
         private readonly Bindable<bool> showParticles = new Bindable<bool>(true);
 
-        private Container particlesPlaceholder;
+        private CurrentRateContainer particlesPlaceholder;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -24,7 +28,7 @@ namespace osu.Game.Rulesets.Mvis.UI
             InternalChildren = new Drawable[]
             {
                 HitObjectContainer,
-                particlesPlaceholder = new Container
+                particlesPlaceholder = new CurrentRateContainer
                 {
                     RelativeSizeAxes = Axes.Both
                 },
@@ -46,7 +50,7 @@ namespace osu.Game.Rulesets.Mvis.UI
         {
             if (value.NewValue)
             {
-                particlesPlaceholder.Child = new SpaceParticlesContainer();
+                particlesPlaceholder.Child = new Particles(textures.Get("particle"));
                 return;
             }
 
