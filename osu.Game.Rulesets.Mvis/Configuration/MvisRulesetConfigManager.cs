@@ -14,7 +14,7 @@ namespace osu.Game.Rulesets.Mvis.Configuration
         {
             base.InitialiseDefaults();
             SetDefault(MvisRulesetSetting.ShowParticles, true);
-            SetDefault(MvisRulesetSetting.ParticlesCount, 200, 100, 300);
+            SetDefault(MvisRulesetSetting.ParticlesCount, 300, 50, 1000);
             SetDefault(MvisRulesetSetting.BarType, BarType.Rounded);
             SetDefault(MvisRulesetSetting.VisualizerAmount, 3, 1, 5);
             SetDefault(MvisRulesetSetting.BarWidth, 3.0, 1, 20);
