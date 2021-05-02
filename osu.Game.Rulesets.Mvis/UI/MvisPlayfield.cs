@@ -1,7 +1,6 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics.Containers;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Rulesets.Mvis.UI.Objects;
@@ -14,9 +13,6 @@ namespace osu.Game.Rulesets.Mvis.UI
     {
         [Resolved(canBeNull: true)]
         private MvisRulesetConfigManager config { get; set; }
-
-        [Resolved]
-        private TextureStore textures { get; set; }
 
         private readonly Bindable<bool> showParticles = new Bindable<bool>(true);
 
@@ -50,7 +46,7 @@ namespace osu.Game.Rulesets.Mvis.UI
         {
             if (value.NewValue)
             {
-                particlesPlaceholder.Child = new Particles(textures.Get("particle"));
+                particlesPlaceholder.Child = new Particles();
                 return;
             }
 

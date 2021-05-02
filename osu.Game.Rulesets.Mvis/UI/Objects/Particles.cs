@@ -42,15 +42,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private readonly List<ParticlePart> parts = new List<ParticlePart>();
 
-        public Particles(Texture texture)
+        [BackgroundDependencyLoader]
+        private void load(TextureStore textures)
         {
             RelativeSizeAxes = Axes.Both;
-            Texture = texture;
-        }
+            Texture = textures.Get("particle");
 
-        [BackgroundDependencyLoader]
-        private void load()
-        {
             config?.BindWith(MvisRulesetSetting.ParticlesCount, count);
             config?.BindWith(MvisRulesetSetting.Red, red);
             config?.BindWith(MvisRulesetSetting.Green, green);
@@ -70,10 +67,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             useCustomColour.BindValueChanged(_ => updateColour(), true);
         }
 
-        private void updateColour()
-        {
-            Colour = useCustomColour.Value ? new Color4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1) : Color4.White;
-        }
+        public int GetCount() => parts.Count;
 
         public void Restart(int particleCount)
         {
@@ -82,6 +76,11 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             for (int i = 0; i < particleCount; i++)
                 createParticle();
+        }
+
+        private void updateColour()
+        {
+            Colour = useCustomColour.Value ? new Color4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1) : Color4.White;
         }
 
         private void createParticle()
@@ -109,10 +108,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             var finalPosition = new Vector2(finalX, finalY);
             var lifeTime = absolute_time * (1 - ratio) / depth;
 
-            var particleToAdd = new ParticlePart(initialPosition, finalPosition, depth, ratio, lifeTime, Time.Current);
-            parts.Add(particleToAdd);
+            int hash = RNG.Next();
 
-            var hash = particleToAdd.GetHash();
+            var particleToAdd = new ParticlePart(initialPosition, finalPosition, depth, ratio, lifeTime, Time.Current, hash);
+            parts.Add(particleToAdd);
 
             Scheduler.AddDelayed(() =>
             {
@@ -206,13 +205,15 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             private readonly Vector2 finalScale;
             private readonly double lifeTime;
             private readonly double startTime;
+            private readonly int hash;
 
-            public ParticlePart(Vector2 initialPosition, Vector2 finalPosition, float depth, float ratio, double lifeTime, double startTime)
+            public ParticlePart(Vector2 initialPosition, Vector2 finalPosition, float depth, float ratio, double lifeTime, double startTime, int hash)
             {
                 this.initialPosition = initialPosition;
                 this.finalPosition = finalPosition;
                 this.lifeTime = lifeTime;
                 this.startTime = startTime;
+                this.hash = hash;
 
                 initialScale = new Vector2(depth);
                 finalScale = new Vector2(1 + ((particle_max_scale - 1) * depth * (1 - ratio)));
@@ -228,7 +229,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             public double GetLifeTime() => lifeTime;
 
-            public int GetHash() => (int)Math.Ceiling(startTime * lifeTime * finalScale.X);
+            public int GetHash() => hash;
         }
     }
 }
