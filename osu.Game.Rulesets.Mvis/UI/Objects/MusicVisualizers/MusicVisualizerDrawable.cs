@@ -100,11 +100,11 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
             if (newValue > oldValue)
             {
-                decays[index] = newValue / smootheness * (float)timeDifference;
+                decays[index] = newValue / smootheness;
                 return newValue;
             }
 
-            newValue = oldValue - decays[index];
+            newValue = oldValue - decays[index] * (float)timeDifference;
 
             return newValue;
         }
