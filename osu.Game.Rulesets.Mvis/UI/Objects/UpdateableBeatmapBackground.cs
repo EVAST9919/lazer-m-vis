@@ -162,7 +162,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             /// </summary>
             /// <param name="longTitle">The title to trim.</param>
             /// <returns></returns>
-            private string getShortTitle(string longTitle)
+            private static string getShortTitle(string longTitle)
             {
                 var newTitle = longTitle;
 
@@ -178,7 +178,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 }
 
                 if (newTitle.EndsWith(" "))
-                    newTitle = newTitle.Substring(0, newTitle.Length - 1);
+                    newTitle = newTitle[0..^1];
 
                 return newTitle;
             }

@@ -15,10 +15,9 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         public BeatmapBackground(WorkingBeatmap beatmap = null)
         {
             this.beatmap = beatmap;
-            RelativeSizeAxes = Axes.Both;
 
             CacheDrawnFrameBuffer = true;
-
+            RelativeSizeAxes = Axes.Both;
             Child = sprite = new Sprite
             {
                 Anchor = Anchor.Centre,

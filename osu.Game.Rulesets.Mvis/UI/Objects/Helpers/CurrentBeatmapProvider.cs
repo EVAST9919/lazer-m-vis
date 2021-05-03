@@ -7,15 +7,17 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.Helpers
 {
     public class CurrentBeatmapProvider : Container
     {
-        [Resolved]
-        private Bindable<WorkingBeatmap> working { get; set; }
-
         protected Bindable<WorkingBeatmap> Beatmap = new Bindable<WorkingBeatmap>();
+
+        [BackgroundDependencyLoader]
+        private void load(Bindable<WorkingBeatmap> working)
+        {
+            Beatmap.BindTo(working);
+        }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            Beatmap.BindTo(working);
             Beatmap.BindValueChanged(OnBeatmapChanged, true);
         }
 
