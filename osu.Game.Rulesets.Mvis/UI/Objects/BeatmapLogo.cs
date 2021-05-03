@@ -20,7 +20,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private MvisRulesetConfigManager config { get; set; }
 
         private readonly Bindable<int> visuals = new Bindable<int>(3);
-        private readonly Bindable<double> barWidth = new Bindable<double>(3.0);
+        private readonly Bindable<double> barWidth = new Bindable<double>(2.5);
         private readonly Bindable<int> barCount = new Bindable<int>(200);
         private readonly Bindable<int> rotation = new Bindable<int>(0);
 
