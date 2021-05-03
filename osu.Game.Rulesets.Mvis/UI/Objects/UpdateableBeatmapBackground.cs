@@ -3,13 +3,12 @@ using osu.Framework.Graphics;
 using osu.Framework.Bindables;
 using osu.Game.Beatmaps;
 using osuTK;
-using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics;
 using osuTK.Graphics;
 using osu.Framework.Extensions.Color4Extensions;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Effects;
 using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
+using osu.Framework.Graphics.Sprites;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
@@ -41,16 +40,11 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                         },
-                        new Box
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.Black.Opacity(0.25f)
-                        },
                         nameContainer = new Container
                         {
                             RelativeSizeAxes = Axes.Both,
                             Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
+                            Origin = Anchor.Centre
                         },
                     }
                 },
@@ -84,6 +78,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 Alpha = 0,
+                Colour = Color4.LightGray
             }, newBackground =>
             {
                 background?.FadeOut(animation_duration, Easing.OutQuint);
@@ -127,33 +122,32 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
+                    AutoSizeAxes = Axes.Both,
                     Direction = FillDirection.Vertical,
                     Spacing = new Vector2(0, 10),
                     Children = new Drawable[]
                     {
-                        new OsuSpriteText
+                        new SpriteText
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Font = OsuFont.GetFont(size: 26, weight: FontWeight.SemiBold),
-                            Text = beatmap.Metadata.Artist,
-                            Shadow = false,
+                            Text = beatmap.Metadata.Artist
                         },
-                        new OsuSpriteText
+                        new SpriteText
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
-                            Text = getShortTitle(beatmap.Metadata.Title),
-                            Shadow = false,
+                            Text = getShortTitle(beatmap.Metadata.Title)
                         }
                     }
                 }.WithEffect(new BlurEffect
                 {
                     Colour = Color4.Black.Opacity(0.7f),
                     DrawOriginal = true,
-                    Sigma = new Vector2(5)
+                    Sigma = new Vector2(5),
+                    PadExtent = true
                 }));
             }
 
