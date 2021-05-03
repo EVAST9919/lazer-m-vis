@@ -1,4 +1,6 @@
-﻿using osu.Framework.Bindables;
+﻿using osu.Framework.Audio.Track;
+using osu.Framework.Bindables;
+using osu.Game.Beatmaps;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.Helpers
 {
@@ -6,11 +8,18 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.Helpers
     {
         public readonly BindableBool IsKiai = new BindableBool();
 
+        private Track track;
+
+        protected override void OnBeatmapChanged(ValueChangedEvent<WorkingBeatmap> beatmap)
+        {
+            base.OnBeatmapChanged(beatmap);
+            track = beatmap.NewValue?.Track;
+        }
+
         protected override void Update()
         {
             base.Update();
 
-            var track = Beatmap.Value?.Track;
             OnAmplitudesUpdate(track?.CurrentAmplitudes.FrequencyAmplitudes.Span.ToArray() ?? new float[256]);
             IsKiai.Value = Beatmap.Value?.Beatmap.ControlPointInfo.EffectPointAt(track?.CurrentTime ?? 0).KiaiMode ?? false;
         }

@@ -19,16 +19,10 @@ namespace osu.Game.Rulesets.Mvis.Beatmaps
         protected override Beatmap<MvisHitObject> CreateBeatmap() => new MvisBeatmap();
 
         protected override IEnumerable<MvisHitObject> ConvertHitObject(HitObject obj, IBeatmap beatmap, CancellationToken token)
-        {
-            switch (obj)
+            => new MvisHitObject
             {
-                default:
-                    return new MvisHitObject
-                    {
-                        StartTime = obj.StartTime,
-                        Samples = obj.Samples
-                    }.Yield();
-            }
-        }
+                StartTime = obj.StartTime,
+                Samples = obj.Samples
+            }.Yield();
     }
 }
