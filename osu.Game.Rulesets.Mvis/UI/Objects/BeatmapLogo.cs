@@ -21,7 +21,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private readonly Bindable<int> visuals = new Bindable<int>(3);
         private readonly Bindable<double> barWidth = new Bindable<double>(3.0);
-        private readonly Bindable<int> barCount = new Bindable<int>(120);
+        private readonly Bindable<int> barCount = new Bindable<int>(200);
         private readonly Bindable<int> rotation = new Bindable<int>(0);
 
         private readonly Bindable<bool> useCustomColour = new Bindable<bool>();
@@ -116,7 +116,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             base.Update();
 
             var track = Beatmap.Value?.Track;
-            progressGlow.Current.Value = track == null ? 0 : (track.CurrentTime / track.Length);
+            progressGlow.Current.Value = (track == null || track.Length == 0) ? 0 : (track.CurrentTime / track.Length);
         }
     }
 }
