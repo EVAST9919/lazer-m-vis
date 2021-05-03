@@ -47,6 +47,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         {
             RelativeSizeAxes = Axes.Both;
             Texture = textures.Get("particle");
+            Blending = BlendingParameters.Additive;
 
             config?.BindWith(MvisRulesetSetting.ParticlesCount, count);
             config?.BindWith(MvisRulesetSetting.Red, red);
@@ -75,7 +76,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             parts.Clear();
 
             for (int i = 0; i < particleCount; i++)
-                createParticle();
+                addParticle(true);
         }
 
         private void updateColour()
@@ -83,7 +84,28 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             Colour = useCustomColour.Value ? new Color4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1) : Color4.White;
         }
 
-        private void createParticle()
+        private ParticlePart addParticle(bool add)
+        {
+            var particleToAdd = createParticle();
+            var hash = particleToAdd.GetHash();
+
+            if (add)
+                parts.Add(particleToAdd);
+
+            Scheduler.AddDelayed(() =>
+            {
+                // Replaces particle which exceeded it's lifetime.
+                for (int i = 0; i < parts.Count; i++)
+                {
+                    if (parts[i].GetHash() == hash)
+                        parts[i] = addParticle(false);
+                }
+            }, particleToAdd.GetLifeTime());
+
+            return particleToAdd;
+        }
+
+        private ParticlePart createParticle()
         {
             var initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f));
             var depth = RNG.NextSingle(0.25f, 1);
@@ -94,13 +116,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             if (Math.Abs(initialPosition.X) > Math.Abs(initialPosition.Y))
             {
-                ratio = Math.Abs(initialPosition.X) / 0.51f;
+                ratio = Math.Abs(initialPosition.X) / 0.5f;
                 finalX = initialPosition.X > 0 ? 0.51f : -0.51f;
                 finalY = initialPosition.Y / ratio;
             }
             else
             {
-                ratio = Math.Abs(initialPosition.Y) / 0.51f;
+                ratio = Math.Abs(initialPosition.Y) / 0.5f;
                 finalY = initialPosition.Y > 0 ? 0.51f : -0.51f;
                 finalX = initialPosition.X / ratio;
             }
@@ -108,22 +130,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             var finalPosition = new Vector2(finalX, finalY);
             var lifeTime = absolute_time * (1 - ratio) / depth;
 
-            int hash = RNG.Next();
-
-            var particleToAdd = new ParticlePart(initialPosition, finalPosition, depth, ratio, lifeTime, Time.Current, hash);
-            parts.Add(particleToAdd);
-
-            Scheduler.AddDelayed(() =>
-            {
-                // Removes particle which exceeded it's lifetime. Works a lot faster than "parts.Remove(particleToAdd)".
-                for (int i = 0; i < parts.Count; i++)
-                {
-                    if (parts[i].GetHash() == hash)
-                        parts.RemoveAt(i);
-                }
-
-                createParticle();
-            }, lifeTime);
+            return new ParticlePart(initialPosition, finalPosition, depth, ratio, lifeTime, Time.Current, RNG.Next());
         }
 
         protected override void Update()
