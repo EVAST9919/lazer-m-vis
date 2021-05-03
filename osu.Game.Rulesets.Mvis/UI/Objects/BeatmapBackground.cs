@@ -7,30 +7,27 @@ using osu.Game.Beatmaps;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
-    public class BeatmapBackground : BufferedContainer
+    public class BeatmapBackground : CompositeDrawable
     {
-        private readonly Sprite sprite;
         private readonly WorkingBeatmap beatmap;
 
         public BeatmapBackground(WorkingBeatmap beatmap = null)
         {
             this.beatmap = beatmap;
+        }
 
-            CacheDrawnFrameBuffer = true;
+        [BackgroundDependencyLoader]
+        private void load(LargeTextureStore textures)
+        {
             RelativeSizeAxes = Axes.Both;
-            Child = sprite = new Sprite
+            InternalChild = new Sprite
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 FillMode = FillMode.Fill,
+                Texture = beatmap?.Background ?? textures.Get(@"Backgrounds/bg4")
             };
-        }
-
-        [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
-        {
-            sprite.Texture = beatmap?.Background ?? textures.Get(@"Backgrounds/bg4");
         }
     }
 }
