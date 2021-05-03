@@ -4,6 +4,8 @@ namespace osu.Game.Rulesets.Mvis.Objects.Drawables
 {
     public class DrawableMvisHitObject : DrawableHitObject<MvisHitObject>
     {
+        protected override double InitialLifetimeOffset => 500;
+
         public DrawableMvisHitObject(MvisHitObject h)
             : base(h)
         {
