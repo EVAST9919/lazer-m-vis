@@ -7,10 +7,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.Helpers
 {
     public class CurrentBeatmapProvider : Container
     {
-        protected Bindable<WorkingBeatmap> Beatmap = new Bindable<WorkingBeatmap>();
+        protected IBindable<WorkingBeatmap> Beatmap = new Bindable<WorkingBeatmap>();
 
         [BackgroundDependencyLoader]
-        private void load(Bindable<WorkingBeatmap> working)
+        private void load(IBindable<WorkingBeatmap> working)
         {
             Beatmap.BindTo(working);
         }

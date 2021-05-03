@@ -9,8 +9,6 @@ using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers;
 using osuTK;
 using osuTK.Graphics;
-using System.Collections.Generic;
-using System.Threading;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
@@ -78,7 +76,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             config?.BindWith(MvisRulesetSetting.Blue, blue);
             config?.BindWith(MvisRulesetSetting.UseCustomColour, useCustomColour);
 
-            barCount.BindValueChanged(_ => updateVisuals());
             visuals.BindValueChanged(_ => updateVisuals(), true);
             rotation.BindValueChanged(e => placeholder.Rotation = e.NewValue, true);
 
@@ -90,44 +87,28 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private void updateColour()
         {
-            if (!useCustomColour.Value)
-            {
-                progressGlow.Colour = Color4.White;
-                glow.Colour = Color4.White;
-                return;
-            }
-
-            progressGlow.FadeColour(new Colour4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1));
-            glow.Colour = new Colour4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1);
+            progressGlow.Colour = glow.Colour = placeholder.Colour =
+                useCustomColour.Value ? new Color4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1) : Color4.White;
         }
-
-        private CancellationTokenSource cancellationTokenSource;
 
         private void updateVisuals()
         {
-            var drawableVisuals = new List<MusicCircularVisualizer>();
-
+            placeholder.Clear();
             var degree = 360f / visuals.Value;
 
             for (int i = 0; i < visuals.Value; i++)
             {
-                drawableVisuals.Add(new MusicCircularVisualizer
+                placeholder.Add(new MusicVisualizer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    DegreeValue = degree,
+                    Size = new Vector2(radius - 1),
                     Rotation = i * degree,
-                    BarWidth = (float)barWidth.Value,
-                    BarsCount = barCount.Value,
-                    CircleSize = radius,
+                    DegreeValue = { Value = degree },
+                    BarWidth = { BindTarget = barWidth },
+                    BarCount = { BindTarget = barCount }
                 });
             }
-
-            LoadComponentsAsync(drawableVisuals, loaded =>
-            {
-                placeholder.Clear();
-                placeholder.AddRange(loaded);
-            }, (cancellationTokenSource = new CancellationTokenSource()).Token);
         }
 
         protected override void Update()
@@ -135,14 +116,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             base.Update();
 
             var track = Beatmap.Value?.Track;
-
-            progressGlow.Current.Value = track == null ? 0 : (float)(track.CurrentTime / track.Length);
-        }
-
-        protected override void Dispose(bool isDisposing)
-        {
-            cancellationTokenSource?.Cancel();
-            base.Dispose(isDisposing);
+            progressGlow.Current.Value = track == null ? 0 : (track.CurrentTime / track.Length);
         }
     }
 }
