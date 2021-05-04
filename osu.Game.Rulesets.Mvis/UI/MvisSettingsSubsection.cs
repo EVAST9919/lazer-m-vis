@@ -38,11 +38,11 @@ namespace osu.Game.Rulesets.Mvis.UI
                     KeyboardStep = 1,
                     TransferValueOnCommit = true
                 },
-                new SettingsEnumDropdown<BarType>
-                {
-                    LabelText = "Bar type",
-                    Current = config.GetBindable<BarType>(MvisRulesetSetting.BarType)
-                },
+                //new SettingsEnumDropdown<BarType>
+                //{
+                //    LabelText = "Bar type",
+                //    Current = config.GetBindable<BarType>(MvisRulesetSetting.BarType)
+                //},
                 new SettingsSlider<int>
                 {
                     LabelText = "Visulizer count",
