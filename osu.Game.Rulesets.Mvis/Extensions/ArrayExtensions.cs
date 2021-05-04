@@ -2,25 +2,20 @@
 {
     public static class ArrayExtensions
     {
-        public static void Smooth(this float[] src)
+        public static void Smooth(this float[] src, int severity = 1)
         {
-            var amps = new float[src.Length];
-
             for (int i = 0; i < src.Length; i++)
             {
-                if (i == 0)
-                {
-                    amps[i] = src[i];
-                    continue;
-                }
+                var start = i - severity > 0 ? i - severity : 0;
+                var end = i + severity < src.Length ? i + severity : src.Length;
 
-                var nextAmp = i == src.Length - 1 ? 0 : src[i + 1];
+                float sum = 0;
 
-                amps[i] = (amps[i - 1] + src[i] + nextAmp) / 3f;
+                for (int j = start; j < end; j++)
+                    sum += src[j];
+
+                src[i] = sum / (end - start);
             }
-
-            for (int i = 0; i < src.Length; i++)
-                src[i] = amps[i];
         }
     }
 }

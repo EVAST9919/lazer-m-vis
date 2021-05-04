@@ -18,7 +18,7 @@ namespace osu.Game.Rulesets.Mvis.Configuration
             SetDefault(MvisRulesetSetting.BarType, BarType.Rounded);
             SetDefault(MvisRulesetSetting.VisualizerAmount, 3, 1, 5);
             SetDefault(MvisRulesetSetting.BarWidth, 3.0, 1, 20);
-            SetDefault(MvisRulesetSetting.BarsPerVisual, 120, 1, 200);
+            SetDefault(MvisRulesetSetting.BarsPerVisual, 120, 10, 3500);
             SetDefault(MvisRulesetSetting.Rotation, 0, 0, 359);
             SetDefault(MvisRulesetSetting.UseCustomColour, false);
             SetDefault(MvisRulesetSetting.Red, 0, 0, 255);

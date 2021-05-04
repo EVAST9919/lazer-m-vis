@@ -15,8 +15,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
     public class MusicVisualizerDrawable : Drawable
     {
-        private const int smooth_pass_count = 5;
-
         public readonly Bindable<float> DegreeValue = new Bindable<float>();
         public readonly Bindable<double> BarWidth = new Bindable<double>();
         public readonly Bindable<int> BarCount = new Bindable<int>();
@@ -66,9 +64,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         public void UpdateAmplitudes(float[] amplitudes, double timeDifference)
         {
             var amps = getConvertedAmplitudes(amplitudes);
-
-            for (int i = 0; i < smooth_pass_count; i++)
-                amps.Smooth();
+            amps.Smooth(Math.Max((int)Math.Round(barCount * 0.015f), 1));
 
             for (int i = 0; i < barCount; i++)
                 audioData[i] = getNewHeight(i, amps[i], 400, 200, timeDifference);
@@ -86,7 +82,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             return amps;
         }
 
-        private int getAmpIndexForBar(int barIndex) => (int)Math.Round(190f / barCount * barIndex);
+        private int getAmpIndexForBar(int barIndex) => (int)Math.Round(200f / barCount * barIndex);
 
         private float getNewHeight(int index, float amplitudeValue, float valueMultiplier, float smootheness, double timeDifference)
         {

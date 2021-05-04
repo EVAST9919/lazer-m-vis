@@ -33,7 +33,7 @@ namespace osu.Game.Rulesets.Mvis.UI
                 },
                 new SettingsSlider<int>
                 {
-                    LabelText = "Particles count",
+                    LabelText = "Particle count",
                     Current = config.GetBindable<int>(MvisRulesetSetting.ParticlesCount),
                     KeyboardStep = 1,
                     TransferValueOnCommit = true
@@ -45,7 +45,7 @@ namespace osu.Game.Rulesets.Mvis.UI
                 },
                 new SettingsSlider<int>
                 {
-                    LabelText = "Visulizer amount",
+                    LabelText = "Visulizer count",
                     Current = config.GetBindable<int>(MvisRulesetSetting.VisualizerAmount),
                     KeyboardStep = 1,
                     TransferValueOnCommit = true
@@ -58,10 +58,9 @@ namespace osu.Game.Rulesets.Mvis.UI
                 },
                 new SettingsSlider<int>
                 {
-                    LabelText = "Bars per visual",
+                    LabelText = "Total bar count",
                     Current = config.GetBindable<int>(MvisRulesetSetting.BarsPerVisual),
-                    KeyboardStep = 1,
-                    TransferValueOnCommit = true
+                    KeyboardStep = 1
                 },
                 new SettingsSlider<int>
                 {
