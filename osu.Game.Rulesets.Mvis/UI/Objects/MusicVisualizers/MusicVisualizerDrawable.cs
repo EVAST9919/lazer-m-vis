@@ -8,12 +8,15 @@ using osu.Framework.Graphics.OpenGL.Vertices;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
+using osu.Game.Rulesets.Mvis.Extensions;
 using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
     public class MusicVisualizerDrawable : Drawable
     {
+        private const int smooth_pass_count = 5;
+
         public readonly Bindable<float> DegreeValue = new Bindable<float>();
         public readonly Bindable<double> BarWidth = new Bindable<double>();
         public readonly Bindable<int> BarCount = new Bindable<int>();
@@ -67,54 +70,46 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         {
             var currentTime = Time.Current;
 
-            // Triple smoothing, looks nice.
-            var amps = getSmoothAplitudes(getSmoothAplitudes(getSmoothAplitudes(amplitudes, true), false), false);
+            var amps = getConvertedAmplitudes(amplitudes);
+
+            for (int i = 0; i < smooth_pass_count; i++)
+                amps.Smooth();
 
             for (int i = 0; i < barCount; i++)
-                audioData[i] = getNewValue(i, amps[i], 400, 200, currentTime - lastTime);
+                audioData[i] = getNewHeight(i, amps[i], 400, 200, currentTime - lastTime);
 
             Invalidate(Invalidation.DrawNode);
 
             lastTime = currentTime;
         }
 
-        private float[] getSmoothAplitudes(float[] initial, bool useConvertedIndex)
+        private float[] getConvertedAmplitudes(float[] amplitudes)
         {
             var amps = new float[barCount];
 
             for (int i = 0; i < barCount; i++)
-            {
-                if (i == 0)
-                {
-                    amps[i] = initial[useConvertedIndex ? getAmpIndexForBar(i) : i];
-                    continue;
-                }
-
-                var nextAmp = i == barCount - 1 ? 0 : initial[useConvertedIndex ? getAmpIndexForBar(i + 1) : i + 1];
-
-                amps[i] = (amps[i - 1] + initial[useConvertedIndex ? getAmpIndexForBar(i) : i] + nextAmp) / 3f;
-            }
+                amps[i] = amplitudes[getAmpIndexForBar(i)];
 
             return amps;
         }
 
         private int getAmpIndexForBar(int barIndex) => (int)Math.Round(190f / barCount * barIndex);
 
-        private float getNewValue(int index, float amplitudeValue, float valueMultiplier, float smootheness, double timeDifference)
+        private float getNewHeight(int index, float amplitudeValue, float valueMultiplier, float smootheness, double timeDifference)
         {
-            var oldValue = audioData[index];
+            var oldHeight = audioData[index];
 
-            var newValue = amplitudeValue * valueMultiplier;
+            var newHeight = amplitudeValue * valueMultiplier;
 
-            if (newValue > oldValue)
+            if (newHeight > oldHeight)
             {
-                decays[index] = newValue / smootheness;
-                return newValue;
+                decays[index] = newHeight / smootheness;
+                return newHeight;
             }
 
-            newValue = oldValue - decays[index] * (float)timeDifference;
+            newHeight = oldHeight - decays[index] * (float)timeDifference;
 
-            return newValue;
+            return newHeight;
         }
 
         protected override DrawNode CreateDrawNode() => new VisualizerDrawNode(this);
