@@ -171,7 +171,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                         // taking the cos and sin to the 0..1 range
                         var barPosition = new Vector2(rotationCos / 2 + 0.5f, rotationSin / 2 + 0.5f) * size;
 
-                        var barSize = new Vector2((float)barWidth, audioData[i]);
+                        var barSize = new Vector2((float)barWidth, 2 + audioData[i]);
 
                         // The distance between the position and the sides of the bar.
                         var bottomOffset = new Vector2(-rotationSin * barSize.X / 2, rotationCos * barSize.X / 2);

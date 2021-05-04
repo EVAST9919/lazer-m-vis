@@ -37,7 +37,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             {
                 visualizer = new MusicVisualizer
                 {
-                    Size = new Vector2(radius - 1)
+                    Size = new Vector2(radius - 2)
                 },
                 new UpdateableBeatmapBackground
                 {
