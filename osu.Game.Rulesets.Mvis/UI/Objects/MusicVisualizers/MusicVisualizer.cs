@@ -52,10 +52,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             }
         }
 
-        protected override void OnAmplitudesUpdate(float[] amplitudes)
+        protected override void OnAmplitudesUpdate(float[] amplitudes, double timeDifference)
         {
             foreach (var c in Children)
-                ((MusicVisualizerDrawable)c).UpdateAmplitudes(amplitudes);
+                ((MusicVisualizerDrawable)c).UpdateAmplitudes(amplitudes, timeDifference);
         }
     }
 }

@@ -35,12 +35,9 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             shader = shaders.Load(VertexShaderDescriptor.TEXTURE_2, FragmentShaderDescriptor.TEXTURE_ROUNDED);
         }
 
-        private double lastTime;
-
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            lastTime = Time.Current;
 
             BarCount.BindValueChanged(c =>
             {
@@ -66,21 +63,17 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             }
         }
 
-        public void UpdateAmplitudes(float[] amplitudes)
+        public void UpdateAmplitudes(float[] amplitudes, double timeDifference)
         {
-            var currentTime = Time.Current;
-
             var amps = getConvertedAmplitudes(amplitudes);
 
             for (int i = 0; i < smooth_pass_count; i++)
                 amps.Smooth();
 
             for (int i = 0; i < barCount; i++)
-                audioData[i] = getNewHeight(i, amps[i], 400, 200, currentTime - lastTime);
+                audioData[i] = getNewHeight(i, amps[i], 400, 200, timeDifference);
 
             Invalidate(Invalidation.DrawNode);
-
-            lastTime = currentTime;
         }
 
         private float[] getConvertedAmplitudes(float[] amplitudes)
