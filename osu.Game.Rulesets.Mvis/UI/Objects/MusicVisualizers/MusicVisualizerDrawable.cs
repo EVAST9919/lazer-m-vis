@@ -64,7 +64,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         public void UpdateAmplitudes(float[] amplitudes, double timeDifference)
         {
             var amps = getConvertedAmplitudes(amplitudes);
-            amps.Smooth(Math.Max((int)Math.Round(barCount * 0.015f), 1));
+            amps.Smooth(Math.Max((int)Math.Round(barCount * 0.005f * 360f / DegreeValue.Value), 1));
 
             for (int i = 0; i < barCount; i++)
                 audioData[i] = getNewHeight(i, amps[i], 400, 200, timeDifference);

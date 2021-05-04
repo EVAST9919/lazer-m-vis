@@ -1,4 +1,6 @@
-﻿namespace osu.Game.Rulesets.Mvis.Extensions
+﻿using System;
+
+namespace osu.Game.Rulesets.Mvis.Extensions
 {
     public static class ArrayExtensions
     {
@@ -6,8 +8,8 @@
         {
             for (int i = 0; i < src.Length; i++)
             {
-                var start = i - severity > 0 ? i - severity : 0;
-                var end = i + severity < src.Length ? i + severity : src.Length;
+                var start = Math.Max(i - severity, 0);
+                var end = Math.Min(i + severity, src.Length);
 
                 float sum = 0;
 
