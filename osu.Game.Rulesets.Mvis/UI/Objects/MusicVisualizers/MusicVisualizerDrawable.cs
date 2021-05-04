@@ -67,20 +67,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         {
             var currentTime = Time.Current;
 
-            var amps = new float[barCount];
-
-            for (int i = 0; i < barCount; i++)
-            {
-                if (i == 0)
-                {
-                    amps[i] = amplitudes[getAmpIndexForBar(i)];
-                    continue;
-                }
-
-                var nextAmp = i == barCount - 1 ? 0 : amplitudes[getAmpIndexForBar(i + 1)];
-
-                amps[i] = (amps[i - 1] + amplitudes[getAmpIndexForBar(i)] + nextAmp) / 3f;
-            }
+            // Triple smoothing, looks nice.
+            var amps = getSmoothAplitudes(getSmoothAplitudes(getSmoothAplitudes(amplitudes, true), false), false);
 
             for (int i = 0; i < barCount; i++)
                 audioData[i] = getNewValue(i, amps[i], 400, 200, currentTime - lastTime);
@@ -90,7 +78,27 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             lastTime = currentTime;
         }
 
-        private int getAmpIndexForBar(int barIndex) => 200 / barCount * barIndex;
+        private float[] getSmoothAplitudes(float[] initial, bool useConvertedIndex)
+        {
+            var amps = new float[barCount];
+
+            for (int i = 0; i < barCount; i++)
+            {
+                if (i == 0)
+                {
+                    amps[i] = initial[useConvertedIndex ? getAmpIndexForBar(i) : i];
+                    continue;
+                }
+
+                var nextAmp = i == barCount - 1 ? 0 : initial[useConvertedIndex ? getAmpIndexForBar(i + 1) : i + 1];
+
+                amps[i] = (amps[i - 1] + initial[useConvertedIndex ? getAmpIndexForBar(i) : i] + nextAmp) / 3f;
+            }
+
+            return amps;
+        }
+
+        private int getAmpIndexForBar(int barIndex) => (int)Math.Round(190f / barCount * barIndex);
 
         private float getNewValue(int index, float amplitudeValue, float valueMultiplier, float smootheness, double timeDifference)
         {

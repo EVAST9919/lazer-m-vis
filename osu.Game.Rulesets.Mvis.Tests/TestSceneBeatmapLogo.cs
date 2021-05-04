@@ -35,7 +35,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            nowPlayingOverlay.ToggleVisibility();
+            AddStep("Toggle visibility", nowPlayingOverlay.ToggleVisibility);
         }
     }
 }
