@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.OpenGL.Vertices;
 using osu.Framework.Graphics.Primitives;
 using osuTK;
 
@@ -64,7 +63,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 fallAudioData.AddRange(Source.fallAudioData);
             }
 
-            protected override void DrawNode(Action<TexturedVertex2D> vertexAction)
+            protected override void DrawNode()
             {
                 Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
 
@@ -107,14 +106,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                         var fallBarPosition = new Vector2(rotationCos / 2 + multiplier, rotationSin / 2 + multiplier) * Size * scale;
                         var fallBarSize = new Vector2((float)BarWidth, 2);
 
-                        var fallBarBottomOffset = new Vector2(-rotationSin * fallBarSize.X / 2, rotationCos * fallBarSize.X / 2);
                         var fallBarAmplitudeOffset = new Vector2(rotationCos * fallBarSize.Y, rotationSin * fallBarSize.Y);
 
                         var fallBarRectangle = new Quad(
-                                Vector2Extensions.Transform(fallBarPosition - fallBarBottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(fallBarPosition - fallBarBottomOffset + fallBarAmplitudeOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(fallBarPosition + fallBarBottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(fallBarPosition + fallBarBottomOffset + fallBarAmplitudeOffset, DrawInfo.Matrix)
+                                Vector2Extensions.Transform(fallBarPosition - bottomOffset, DrawInfo.Matrix),
+                                Vector2Extensions.Transform(fallBarPosition - bottomOffset + fallBarAmplitudeOffset, DrawInfo.Matrix),
+                                Vector2Extensions.Transform(fallBarPosition + bottomOffset, DrawInfo.Matrix),
+                                Vector2Extensions.Transform(fallBarPosition + bottomOffset + fallBarAmplitudeOffset, DrawInfo.Matrix)
                             );
 
                         DrawQuad(

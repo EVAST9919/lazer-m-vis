@@ -16,7 +16,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         private readonly Bindable<double> barWidth = new Bindable<double>(1.0);
         private readonly Bindable<int> totalBarCount = new Bindable<int>(3500);
         private readonly Bindable<int> rotation = new Bindable<int>(0);
-        private readonly Bindable<BarType> type = new Bindable<BarType>();
+        private readonly Bindable<BarType> type = new Bindable<BarType>(BarType.Fall);
 
         [BackgroundDependencyLoader]
         private void load()

@@ -1,6 +1,5 @@
 ﻿using System;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.OpenGL.Vertices;
 using osu.Framework.Graphics.Primitives;
 using osuTK;
 
@@ -17,7 +16,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             {
             }
 
-            protected override void DrawNode(Action<TexturedVertex2D> vertexAction)
+            protected override void DrawNode()
             {
                 Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
 

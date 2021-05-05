@@ -127,7 +127,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             protected double BarWidth;
 
             protected readonly List<float> AudioData = new List<float>();
-            protected readonly QuadBatch<TexturedVertex2D> VertexBatch = new QuadBatch<TexturedVertex2D>(100, 10);
+            protected readonly QuadBatch<TexturedVertex2D> VertexBatch = new QuadBatch<TexturedVertex2D>(200, 5);
 
             public VisualizerDrawNode(T source)
                 : base(source)
@@ -153,11 +153,11 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 base.Draw(vertexAction);
 
                 shader.Bind();
-                DrawNode(vertexAction);
+                DrawNode();
                 shader.Unbind();
             }
 
-            protected abstract void DrawNode(Action<TexturedVertex2D> vertexAction);
+            protected abstract void DrawNode();
 
             protected override void Dispose(bool isDisposing)
             {
