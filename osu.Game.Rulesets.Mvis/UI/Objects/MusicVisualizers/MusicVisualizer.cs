@@ -16,6 +16,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         private readonly Bindable<double> barWidth = new Bindable<double>(1.0);
         private readonly Bindable<int> totalBarCount = new Bindable<int>(3500);
         private readonly Bindable<int> rotation = new Bindable<int>(0);
+        private readonly Bindable<BarType> type = new Bindable<BarType>();
 
         [BackgroundDependencyLoader]
         private void load()
@@ -27,6 +28,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             config?.BindWith(MvisRulesetSetting.BarWidth, barWidth);
             config?.BindWith(MvisRulesetSetting.BarsPerVisual, totalBarCount);
             config?.BindWith(MvisRulesetSetting.Rotation, rotation);
+            config?.BindWith(MvisRulesetSetting.BarType, type);
         }
 
         protected override void LoadComplete()
@@ -34,7 +36,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             base.LoadComplete();
 
             totalBarCount.BindValueChanged(_ => updateBarCount());
-            visuals.BindValueChanged(_ => updateVisuals(), true);
+            visuals.BindValueChanged(_ => updateVisuals());
+            type.BindValueChanged(_ => updateVisuals(), true);
             rotation.BindValueChanged(e => Rotation = e.NewValue, true);
         }
 
@@ -46,18 +49,31 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
             for (int i = 0; i < visuals.Value; i++)
             {
-                Add(new BasicMusicVisualizerDrawable
+                Add(createVisualizer().With(v =>
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Rotation = i * degree,
-                    DegreeValue = { Value = degree },
-                    BarWidth = { BindTarget = barWidth }
-                });
+                    v.Anchor = Anchor.Centre;
+                    v.Origin = Anchor.Centre;
+                    v.RelativeSizeAxes = Axes.Both;
+                    v.Rotation = i * degree;
+                    v.DegreeValue.Value = degree;
+                    v.BarWidth.BindTo(barWidth);
+                }));
             }
 
             updateBarCount();
+        }
+
+        private MusicVisualizerDrawable createVisualizer()
+        {
+            switch (type.Value)
+            {
+                default:
+                case BarType.Basic:
+                    return new BasicMusicVisualizerDrawable();
+
+                case BarType.Fall:
+                    return new FallMusicVisualizerDrawable();
+            }
         }
 
         private void updateBarCount()

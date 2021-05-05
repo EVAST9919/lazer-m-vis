@@ -52,26 +52,38 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
         private void restart()
         {
-            audioData.Clear();
-            decays.Clear();
+            ClearData();
 
             for (int i = 0; i < barCount; i++)
-            {
-                audioData.Add(0);
-                decays.Add(0);
-            }
+                AddEmptyDataValue();
+        }
+
+        protected virtual void ClearData()
+        {
+            audioData.Clear();
+            decays.Clear();
+        }
+
+        protected virtual void AddEmptyDataValue()
+        {
+            audioData.Add(0);
+            decays.Add(0);
         }
 
         public void SetAmplitudes(float[] amplitudes, double timeDifference)
         {
             var amps = getConvertedAmplitudes(amplitudes);
-
             amps.Smooth(Math.Max((int)Math.Round(barCount * 0.005f * 360f / DegreeValue.Value), 1));
 
             for (int i = 0; i < barCount; i++)
-                audioData[i] = getNewHeight(i, amps[i], 400, 200, timeDifference);
+                ApplyData(i, amps[i], timeDifference);
 
             Invalidate(Invalidation.DrawNode);
+        }
+
+        protected virtual void ApplyData(int index, float data, double timeDifference)
+        {
+            audioData[index] = getNewHeight(index, data, 400, 200, timeDifference);
         }
 
         private float[] getConvertedAmplitudes(float[] amplitudes)
