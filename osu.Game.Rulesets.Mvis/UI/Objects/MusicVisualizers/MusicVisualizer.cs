@@ -46,7 +46,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
             for (int i = 0; i < visuals.Value; i++)
             {
-                Add(new MusicVisualizerDrawable
+                Add(new BasicMusicVisualizerDrawable
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,

@@ -5,15 +5,13 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Batches;
 using osu.Framework.Graphics.OpenGL.Vertices;
-using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Rulesets.Mvis.Extensions;
-using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
-    public class MusicVisualizerDrawable : Drawable
+    public abstract class MusicVisualizerDrawable : Drawable
     {
         // Total amplitude count is 256, however in most cases some of them are empty, let's not use them.
         private const int used_amplitude_count = 200;
@@ -43,7 +41,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             BarCount.BindValueChanged(c =>
             {
                 barCount = c.NewValue;
-                Restart();
+                restart();
             }, true);
         }
 
@@ -52,7 +50,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
         private int barCount;
 
-        public void Restart()
+        private void restart()
         {
             audioData.Clear();
             decays.Clear();
@@ -101,23 +99,25 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             return newHeight;
         }
 
-        protected override DrawNode CreateDrawNode() => new VisualizerDrawNode(this);
+        protected override DrawNode CreateDrawNode() => CreateVisualizerDrawNode();
 
-        private class VisualizerDrawNode : DrawNode
+        protected abstract VisualizerDrawNode CreateVisualizerDrawNode();
+
+        protected abstract class VisualizerDrawNode<T> : VisualizerDrawNode
+            where T : MusicVisualizerDrawable
         {
-            protected new MusicVisualizerDrawable Source => (MusicVisualizerDrawable)base.Source;
+            protected new T Source => (T)base.Source;
 
             private IShader shader;
-            private Texture texture;
-            private float size;
-            private float degreeValue;
-            private double barWidth;
+            protected Texture Texture;
+            protected float Size;
+            protected float DegreeValue;
+            protected double BarWidth;
 
-            private readonly List<float> audioData = new List<float>();
+            protected readonly List<float> AudioData = new List<float>();
+            protected readonly QuadBatch<TexturedVertex2D> VertexBatch = new QuadBatch<TexturedVertex2D>(100, 10);
 
-            private readonly QuadBatch<TexturedVertex2D> vertexBatch = new QuadBatch<TexturedVertex2D>(100, 10);
-
-            public VisualizerDrawNode(MusicVisualizerDrawable source)
+            public VisualizerDrawNode(T source)
                 : base(source)
             {
             }
@@ -127,13 +127,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 base.ApplyState();
 
                 shader = Source.shader;
-                texture = Source.texture;
-                size = Source.DrawSize.X;
-                degreeValue = Source.DegreeValue.Value;
-                barWidth = Source.BarWidth.Value;
+                Texture = Source.texture;
+                Size = Source.DrawSize.X;
+                DegreeValue = Source.DegreeValue.Value;
+                BarWidth = Source.BarWidth.Value;
 
-                audioData.Clear();
-                audioData.AddRange(Source.audioData);
+                AudioData.Clear();
+                AudioData.AddRange(Source.audioData);
             }
 
             public override void Draw(Action<TexturedVertex2D> vertexAction)
@@ -141,51 +141,24 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 base.Draw(vertexAction);
 
                 shader.Bind();
-                Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
-
-                if (audioData != null)
-                {
-                    float spacing = degreeValue / audioData.Count;
-
-                    for (int i = 0; i < audioData.Count; i++)
-                    {
-                        float rotation = MathHelper.DegreesToRadians(i * spacing - 90);
-                        float rotationCos = MathF.Cos(rotation);
-                        float rotationSin = MathF.Sin(rotation);
-
-                        // taking the cos and sin to the 0..1 range
-                        var barPosition = new Vector2(rotationCos / 2 + 0.5f, rotationSin / 2 + 0.5f) * size;
-
-                        var barSize = new Vector2((float)barWidth, 2 + audioData[i]);
-
-                        // The distance between the position and the sides of the bar.
-                        var bottomOffset = new Vector2(-rotationSin * barSize.X / 2, rotationCos * barSize.X / 2);
-                        // The distance between the bottom side of the bar and the top side.
-                        var amplitudeOffset = new Vector2(rotationCos * barSize.Y, rotationSin * barSize.Y);
-
-                        var rectangle = new Quad(
-                                Vector2Extensions.Transform(barPosition - bottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(barPosition - bottomOffset + amplitudeOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(barPosition + bottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(barPosition + bottomOffset + amplitudeOffset, DrawInfo.Matrix)
-                            );
-
-                        DrawQuad(
-                            texture,
-                            rectangle,
-                            DrawColourInfo.Colour,
-                            null,
-                            vertexBatch.AddAction,
-                            // barSize by itself will make it smooth more in the X axis than in the Y axis, this reverts that.
-                            Vector2.Divide(inflation, barSize.Yx));
-                    }
-                }
+                DrawNode(vertexAction);
+                shader.Unbind();
             }
+
+            protected abstract void DrawNode(Action<TexturedVertex2D> vertexAction);
 
             protected override void Dispose(bool isDisposing)
             {
                 base.Dispose(isDisposing);
-                vertexBatch.Dispose();
+                VertexBatch.Dispose();
+            }
+        }
+
+        protected abstract class VisualizerDrawNode : DrawNode
+        {
+            public VisualizerDrawNode(MusicVisualizerDrawable source)
+                : base(source)
+            {
             }
         }
     }
