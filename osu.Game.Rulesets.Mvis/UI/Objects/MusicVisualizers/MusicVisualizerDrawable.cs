@@ -112,7 +112,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             private float size;
             private float degreeValue;
             private double barWidth;
-            private List<float> audioData;
+
+            private readonly List<float> audioData = new List<float>();
 
             private readonly QuadBatch<TexturedVertex2D> vertexBatch = new QuadBatch<TexturedVertex2D>(100, 10);
 
@@ -130,7 +131,9 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 size = Source.DrawSize.X;
                 degreeValue = Source.DegreeValue.Value;
                 barWidth = Source.BarWidth.Value;
-                audioData = Source.audioData;
+
+                audioData.Clear();
+                audioData.AddRange(Source.audioData);
             }
 
             public override void Draw(Action<TexturedVertex2D> vertexAction)
