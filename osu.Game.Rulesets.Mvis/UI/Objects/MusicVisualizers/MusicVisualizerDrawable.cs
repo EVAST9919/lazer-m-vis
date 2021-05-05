@@ -15,6 +15,9 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
     public class MusicVisualizerDrawable : Drawable
     {
+        // Total amplitude count is 256, however in most cases some of them are empty, let's not use them.
+        private const int used_amplitude_count = 200;
+
         public readonly Bindable<float> DegreeValue = new Bindable<float>();
         public readonly Bindable<double> BarWidth = new Bindable<double>();
         public readonly Bindable<int> BarCount = new Bindable<int>();
@@ -61,9 +64,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             }
         }
 
-        public void UpdateAmplitudes(float[] amplitudes, double timeDifference)
+        public void SetAmplitudes(float[] amplitudes, double timeDifference)
         {
             var amps = getConvertedAmplitudes(amplitudes);
+
             amps.Smooth(Math.Max((int)Math.Round(barCount * 0.005f * 360f / DegreeValue.Value), 1));
 
             for (int i = 0; i < barCount; i++)
@@ -82,21 +86,17 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             return amps;
         }
 
-        private int getAmpIndexForBar(int barIndex) => (int)Math.Round(200f / barCount * barIndex);
+        private int getAmpIndexForBar(int barIndex) => (int)Math.Round((float)used_amplitude_count / barCount * barIndex);
 
         private float getNewHeight(int index, float amplitudeValue, float valueMultiplier, float smootheness, double timeDifference)
         {
             var oldHeight = audioData[index];
-
             var newHeight = amplitudeValue * valueMultiplier;
 
-            if (newHeight > oldHeight)
-            {
+            if (newHeight >= oldHeight)
                 decays[index] = newHeight / smootheness;
-                return newHeight;
-            }
-
-            newHeight = oldHeight - decays[index] * (float)timeDifference;
+            else
+                newHeight = oldHeight - decays[index] * (float)timeDifference;
 
             return newHeight;
         }
@@ -112,8 +112,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             private float size;
             private float degreeValue;
             private double barWidth;
+            private List<float> audioData;
 
-            private readonly List<float> audioData = new List<float>();
             private readonly QuadBatch<TexturedVertex2D> vertexBatch = new QuadBatch<TexturedVertex2D>(100, 10);
 
             public VisualizerDrawNode(MusicVisualizerDrawable source)
@@ -130,9 +130,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 size = Source.DrawSize.X;
                 degreeValue = Source.DegreeValue.Value;
                 barWidth = Source.BarWidth.Value;
-
-                audioData.Clear();
-                audioData.AddRange(Source.audioData);
+                audioData = Source.audioData;
             }
 
             public override void Draw(Action<TexturedVertex2D> vertexAction)
