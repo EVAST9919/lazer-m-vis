@@ -64,6 +64,18 @@ namespace osu.Game.Rulesets.Mvis.UI
                 },
                 new SettingsSlider<int>
                 {
+                    LabelText = "Decay",
+                    Current = config.GetBindable<int>(MvisRulesetSetting.Decay),
+                    KeyboardStep = 1
+                },
+                new SettingsSlider<int>
+                {
+                    LabelText = "Height Multiplier",
+                    Current = config.GetBindable<int>(MvisRulesetSetting.Multiplier),
+                    KeyboardStep = 1
+                },
+                new SettingsSlider<int>
+                {
                     LabelText = "Rotation",
                     KeyboardStep = 1,
                     Current = config.GetBindable<int>(MvisRulesetSetting.Rotation)

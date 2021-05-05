@@ -16,6 +16,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         private readonly Bindable<double> barWidth = new Bindable<double>(1.0);
         private readonly Bindable<int> totalBarCount = new Bindable<int>(3500);
         private readonly Bindable<int> rotation = new Bindable<int>(0);
+        private readonly Bindable<int> decay = new Bindable<int>(200);
+        private readonly Bindable<int> multiplier = new Bindable<int>(400);
         private readonly Bindable<BarType> type = new Bindable<BarType>(BarType.Fall);
 
         [BackgroundDependencyLoader]
@@ -29,6 +31,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             config?.BindWith(MvisRulesetSetting.BarsPerVisual, totalBarCount);
             config?.BindWith(MvisRulesetSetting.Rotation, rotation);
             config?.BindWith(MvisRulesetSetting.BarType, type);
+            config?.BindWith(MvisRulesetSetting.Decay, decay);
+            config?.BindWith(MvisRulesetSetting.Multiplier, multiplier);
         }
 
         protected override void LoadComplete()
@@ -57,6 +61,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                     v.Rotation = i * degree;
                     v.DegreeValue.Value = degree;
                     v.BarWidth.BindTo(barWidth);
+                    v.Decay.BindTo(decay);
+                    v.HeightMultiplier.BindTo(multiplier);
                 }));
             }
 

@@ -37,8 +37,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         {
             base.UpdateData(index, timeDifference);
 
-            currentRawFallAudioData[index] -= maxFallBarValues[index] / 1200 * timeDifference;
-            smoothFallAudioData[index] = currentRawFallAudioData[index] * 400;
+            currentRawFallAudioData[index] -= maxFallBarValues[index] / (Decay.Value * 4) * timeDifference;
+            smoothFallAudioData[index] = currentRawFallAudioData[index] * HeightMultiplier.Value;
         }
 
         protected override void PostUpdate()

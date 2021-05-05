@@ -19,6 +19,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         public readonly Bindable<float> DegreeValue = new Bindable<float>();
         public readonly Bindable<double> BarWidth = new Bindable<double>();
         public readonly Bindable<int> BarCount = new Bindable<int>();
+        public readonly Bindable<int> Decay = new Bindable<int>();
+        public readonly Bindable<int> HeightMultiplier = new Bindable<int>();
 
         private IShader shader;
         private readonly Texture texture;
@@ -38,6 +40,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         {
             base.LoadComplete();
 
+            Decay.BindValueChanged(_ => ResetArrays(barCount));
             BarCount.BindValueChanged(c =>
             {
                 barCount = c.NewValue;
@@ -91,8 +94,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
         protected virtual void UpdateData(int index, float timeDifference)
         {
-            currentRawAudioData[index] -= maxBarValues[index] / 200 * timeDifference;
-            smoothAudioData[index] = currentRawAudioData[index] * 400;
+            currentRawAudioData[index] -= maxBarValues[index] / Decay.Value * timeDifference;
+            smoothAudioData[index] = currentRawAudioData[index] * HeightMultiplier.Value;
         }
 
         protected virtual void PostUpdate()
