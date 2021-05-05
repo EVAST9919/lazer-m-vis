@@ -41,49 +41,63 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             BarCount.BindValueChanged(c =>
             {
                 barCount = c.NewValue;
-                restart();
+                ResetArrays(barCount);
             }, true);
         }
 
-        private readonly List<float> audioData = new List<float>();
-        private readonly List<float> decays = new List<float>();
+        private float[] currentRawAudioData;
+        private float[] maxBarValues;
+        private float[] smoothAudioData;
 
         private int barCount;
 
-        private void restart()
+        protected virtual void ResetArrays(int barCount)
         {
-            ClearData();
+            currentRawAudioData = new float[barCount];
+            maxBarValues = new float[barCount];
+            smoothAudioData = new float[barCount];
+        }
+
+        public void SetAmplitudes(float[] amplitudes)
+        {
+            var newRawAudioData = getConvertedAmplitudes(amplitudes);
 
             for (int i = 0; i < barCount; i++)
-                AddEmptyDataValue();
+                ApplyData(i, newRawAudioData[i]);
         }
 
-        protected virtual void ClearData()
+        protected virtual void ApplyData(int index, float newRawAudioDataAtIndex)
         {
-            audioData.Clear();
-            decays.Clear();
+            if (newRawAudioDataAtIndex > currentRawAudioData[index])
+            {
+                currentRawAudioData[index] = newRawAudioDataAtIndex;
+                maxBarValues[index] = currentRawAudioData[index];
+            }
         }
 
-        protected virtual void AddEmptyDataValue()
+        protected override void Update()
         {
-            audioData.Add(0);
-            decays.Add(0);
-        }
+            base.Update();
 
-        public void SetAmplitudes(float[] amplitudes, double timeDifference)
-        {
-            var amps = getConvertedAmplitudes(amplitudes);
-            amps.Smooth(Math.Max((int)Math.Round(barCount * 0.005f * 360f / DegreeValue.Value), 1));
+            var diff = (float)Clock.ElapsedFrameTime;
 
             for (int i = 0; i < barCount; i++)
-                ApplyData(i, amps[i], timeDifference);
+                UpdateData(i, diff);
+
+            PostUpdate();
 
             Invalidate(Invalidation.DrawNode);
         }
 
-        protected virtual void ApplyData(int index, float data, double timeDifference)
+        protected virtual void UpdateData(int index, float timeDifference)
         {
-            audioData[index] = getNewHeight(index, data, 400, 200, timeDifference);
+            currentRawAudioData[index] -= maxBarValues[index] / 200 * timeDifference;
+            smoothAudioData[index] = currentRawAudioData[index] * 400;
+        }
+
+        protected virtual void PostUpdate()
+        {
+            smoothAudioData.Smooth(Math.Max((int)Math.Round(barCount * 0.003f * 360f / DegreeValue.Value), 1));
         }
 
         private float[] getConvertedAmplitudes(float[] amplitudes)
@@ -97,19 +111,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         }
 
         private int getAmpIndexForBar(int barIndex) => (int)Math.Round((float)used_amplitude_count / barCount * barIndex);
-
-        private float getNewHeight(int index, float amplitudeValue, float valueMultiplier, float smootheness, double timeDifference)
-        {
-            var oldHeight = audioData[index];
-            var newHeight = amplitudeValue * valueMultiplier;
-
-            if (newHeight >= oldHeight)
-                decays[index] = newHeight / smootheness;
-            else
-                newHeight = oldHeight - decays[index] * (float)timeDifference;
-
-            return newHeight;
-        }
 
         protected override DrawNode CreateDrawNode() => CreateVisualizerDrawNode();
 
@@ -145,7 +146,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 BarWidth = Source.BarWidth.Value;
 
                 AudioData.Clear();
-                AudioData.AddRange(Source.audioData);
+                AudioData.AddRange(Source.smoothAudioData);
             }
 
             public override void Draw(Action<TexturedVertex2D> vertexAction)

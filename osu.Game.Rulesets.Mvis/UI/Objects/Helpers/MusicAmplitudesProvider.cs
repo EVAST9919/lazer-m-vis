@@ -20,10 +20,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.Helpers
         {
             base.Update();
 
-            OnAmplitudesUpdate(track?.CurrentAmplitudes.FrequencyAmplitudes.Span.ToArray() ?? new float[256], Clock.ElapsedFrameTime);
+            OnAmplitudesUpdate(track?.CurrentAmplitudes.FrequencyAmplitudes.Span.ToArray() ?? new float[256]);
             IsKiai.Value = Beatmap.Value?.Beatmap.ControlPointInfo.EffectPointAt(track?.CurrentTime ?? 0).KiaiMode ?? false;
         }
 
-        protected abstract void OnAmplitudesUpdate(float[] amplitudes, double timeDifference);
+        protected abstract void OnAmplitudesUpdate(float[] amplitudes);
     }
 }

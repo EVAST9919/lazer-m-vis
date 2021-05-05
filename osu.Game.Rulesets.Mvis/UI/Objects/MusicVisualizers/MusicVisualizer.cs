@@ -84,10 +84,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 ((MusicVisualizerDrawable)c).BarCount.Value = barsPerVis;
         }
 
-        protected override void OnAmplitudesUpdate(float[] amplitudes, double timeDifference)
+        protected override void OnAmplitudesUpdate(float[] amplitudes)
         {
             foreach (var c in Children)
-                ((MusicVisualizerDrawable)c).SetAmplitudes(amplitudes, timeDifference);
+                ((MusicVisualizerDrawable)c).SetAmplitudes(amplitudes);
         }
     }
 }

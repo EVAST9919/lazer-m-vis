@@ -7,7 +7,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.Helpers
     {
         public readonly BindableFloat Intensity = new BindableFloat();
 
-        protected override void OnAmplitudesUpdate(float[] amplitudes, double timeDifference)
+        protected override void OnAmplitudesUpdate(float[] amplitudes)
         {
             float sum = 0;
             amplitudes.ForEach(amp => sum += amp);

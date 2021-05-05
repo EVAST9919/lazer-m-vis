@@ -2,46 +2,50 @@
 using System.Collections.Generic;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Primitives;
+using osu.Game.Rulesets.Mvis.Extensions;
 using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
     public class FallMusicVisualizerDrawable : MusicVisualizerDrawable
     {
-        private readonly List<float> fallAudioData = new List<float>();
-        private readonly List<float> fallDecays = new List<float>();
+        private float[] currentRawFallAudioData;
+        private float[] maxFallBarValues;
+        private float[] smoothFallAudioData;
 
-        protected override void ClearData()
+        protected override void ResetArrays(int barCount)
         {
-            base.ClearData();
-            fallAudioData.Clear();
-            fallDecays.Clear();
+            base.ResetArrays(barCount);
+
+            currentRawFallAudioData = new float[barCount];
+            maxFallBarValues = new float[barCount];
+            smoothFallAudioData = new float[barCount];
         }
 
-        protected override void AddEmptyDataValue()
+        protected override void ApplyData(int index, float newRawAudioDataAtIndex)
         {
-            base.AddEmptyDataValue();
-            fallAudioData.Add(0);
-            fallDecays.Add(0);
+            base.ApplyData(index, newRawAudioDataAtIndex);
+
+            if (newRawAudioDataAtIndex > currentRawFallAudioData[index])
+            {
+                currentRawFallAudioData[index] = newRawAudioDataAtIndex;
+                maxFallBarValues[index] = currentRawFallAudioData[index];
+            }
         }
 
-        protected override void ApplyData(int index, float data, double timeDifference)
+        protected override void UpdateData(int index, float timeDifference)
         {
-            base.ApplyData(index, data, timeDifference);
-            fallAudioData[index] = getNewY(index, data, 400, 1200, timeDifference);
+            base.UpdateData(index, timeDifference);
+
+            currentRawFallAudioData[index] -= maxFallBarValues[index] / 1200 * timeDifference;
+            smoothFallAudioData[index] = currentRawFallAudioData[index] * 400;
         }
 
-        private float getNewY(int index, float amplitudeValue, float valueMultiplier, float smootheness, double timeDifference)
+        protected override void PostUpdate()
         {
-            var oldY = fallAudioData[index];
-            var newY = amplitudeValue * valueMultiplier;
+            base.PostUpdate();
 
-            if (newY >= oldY)
-                fallDecays[index] = newY / smootheness;
-            else
-                newY = oldY - fallDecays[index] * (float)timeDifference;
-
-            return newY;
+            smoothFallAudioData.Smooth(Math.Max((int)Math.Round(BarCount.Value * 0.003f * 360f / DegreeValue.Value), 1));
         }
 
         protected override VisualizerDrawNode CreateVisualizerDrawNode() => new FallVisualizerDrawNode(this);
@@ -60,7 +64,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 base.ApplyState();
 
                 fallAudioData.Clear();
-                fallAudioData.AddRange(Source.fallAudioData);
+                fallAudioData.AddRange(Source.smoothFallAudioData);
             }
 
             protected override void DrawNode()
