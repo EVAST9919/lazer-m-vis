@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Utils;
 using osu.Game.Rulesets.Mvis.Configuration;
+using osu.Game.Rulesets.Mvis.Extensions;
 using osuTK;
 using osuTK.Graphics;
 
@@ -16,20 +17,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
     public class Particles : Sprite
     {
-        /// <summary>
-        /// Adjusts the speed of all the particles.
-        /// </summary>
-        private const int absolute_time = 5000;
-
-        /// <summary>
-        /// The maximum scale of a single particle.
-        /// </summary>
-        private const float particle_max_scale = 3;
-
-        /// <summary>
-        /// Base particle size.
-        /// </summary>
-        private const float particle_size = 2;
+        private const int min_depth = 1;
+        private const int max_depth = 1500;
+        private const float particle_max_size = 4;
+        private const float particle_min_size = 1;
 
         [Resolved(canBeNull: true)]
         private MvisRulesetConfigManager config { get; set; }
@@ -40,7 +31,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private readonly Bindable<int> green = new Bindable<int>(0);
         private readonly Bindable<int> blue = new Bindable<int>(0);
 
-        private readonly List<ParticlePart> parts = new List<ParticlePart>();
+        private readonly List<Particle> parts = new List<Particle>();
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
@@ -68,15 +59,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             useCustomColour.BindValueChanged(_ => updateColour(), true);
         }
 
-        public int GetCount() => parts.Count;
-
         public void Restart(int particleCount)
         {
-            Scheduler.CancelDelayedTasks();
             parts.Clear();
 
             for (int i = 0; i < particleCount; i++)
-                addParticle(true);
+                parts.Add(new Particle());
         }
 
         private void updateColour()
@@ -84,58 +72,29 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             Colour = useCustomColour.Value ? new Color4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1) : Color4.White;
         }
 
-        private ParticlePart addParticle(bool add)
-        {
-            var particleToAdd = createParticle();
-            var hash = particleToAdd.GetHash();
-
-            if (add)
-                parts.Add(particleToAdd);
-
-            Scheduler.AddDelayed(() =>
-            {
-                // Replaces particle which exceeded it's lifetime.
-                for (int i = 0; i < parts.Count; i++)
-                {
-                    if (parts[i].GetHash() == hash)
-                        parts[i] = addParticle(false);
-                }
-            }, particleToAdd.GetLifeTime());
-
-            return particleToAdd;
-        }
-
-        private ParticlePart createParticle()
-        {
-            var initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f));
-            var depth = RNG.NextSingle(0.25f, 1);
-
-            float finalX;
-            float finalY;
-            float ratio;
-
-            if (Math.Abs(initialPosition.X) > Math.Abs(initialPosition.Y))
-            {
-                ratio = Math.Abs(initialPosition.X) / 0.5f;
-                finalX = initialPosition.X > 0 ? 0.51f : -0.51f;
-                finalY = initialPosition.Y / ratio;
-            }
-            else
-            {
-                ratio = Math.Abs(initialPosition.Y) / 0.5f;
-                finalY = initialPosition.Y > 0 ? 0.51f : -0.51f;
-                finalX = initialPosition.X / ratio;
-            }
-
-            var finalPosition = new Vector2(finalX, finalY);
-            var lifeTime = absolute_time * (1 - ratio) / depth;
-
-            return new ParticlePart(initialPosition, finalPosition, depth, ratio, lifeTime, Time.Current, RNG.Next());
-        }
-
         protected override void Update()
         {
             base.Update();
+
+            var timeDiff = (float)Clock.ElapsedFrameTime * 0.1f;
+
+            for (int i = 0; i < parts.Count; i++)
+            {
+                parts[i].UpdateCurrentPosition(timeDiff);
+
+                if (parts[i].CurrentDepth < min_depth)
+                {
+                    parts[i].Reset(false);
+                    continue;
+                }
+
+                var position = parts[i].CurrentPosition;
+
+                if (position.X > 0.5f || position.X < -0.5f || position.Y > 0.5f || position.Y < -0.5f)
+                    parts[i].Reset(false);
+
+            }
+
             Invalidate(Invalidation.DrawNode);
         }
 
@@ -143,18 +102,16 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         protected override void Dispose(bool isDisposing)
         {
-            Scheduler.CancelDelayedTasks();
             parts.Clear();
             base.Dispose(isDisposing);
         }
 
         private class ParticleDrawNode : SpriteDrawNode
         {
-            private readonly List<ParticlePart> parts = new List<ParticlePart>();
+            private readonly List<Particle> parts = new List<Particle>();
 
             private Particles source => (Particles)Source;
 
-            private double currentTime;
             private Vector2 sourceSize;
 
             public ParticleDrawNode(Sprite source)
@@ -170,24 +127,20 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 parts.AddRange(source.parts);
 
                 sourceSize = source.DrawSize;
-                currentTime = source.Time.Current;
             }
 
             protected override void Blit(Action<TexturedVertex2D> vertexAction)
             {
                 foreach (var p in parts)
                 {
-                    var time = currentTime - p.GetStartTime();
-
-                    Vector2 pos = p.PositionAtTime(time);
-                    float alpha = p.AlphaAtTime(time);
-                    var scale = p.ScaleAtTime(time);
+                    Vector2 pos = p.CurrentPosition;
+                    var size = p.CurrentSize;
 
                     var rect = new RectangleF(
-                        pos.X * sourceSize.X + sourceSize.X / 2 - particle_size * scale.X / 2,
-                        pos.Y * sourceSize.Y + sourceSize.Y / 2 - particle_size * scale.Y / 2,
-                        particle_size * scale.X,
-                        particle_size * scale.Y);
+                        pos.X * sourceSize.X + sourceSize.X / 2 - size / 2,
+                        pos.Y * sourceSize.Y + sourceSize.Y / 2 - size / 2,
+                        size,
+                        size);
 
                     // convert to screen space.
                     var quad = new Quad(
@@ -197,46 +150,70 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                         Vector2Extensions.Transform(rect.BottomRight, DrawInfo.Matrix)
                     );
 
-                    DrawQuad(Texture, quad, DrawColourInfo.Colour.MultiplyAlpha(alpha), null, vertexAction,
+                    DrawQuad(Texture, quad, DrawColourInfo.Colour.MultiplyAlpha(p.CurrentAlpha), null, vertexAction,
                         new Vector2(InflationAmount.X / DrawRectangle.Width, InflationAmount.Y / DrawRectangle.Height),
                         null, TextureCoords);
                 }
             }
         }
 
-        private readonly struct ParticlePart
+        private class Particle
         {
-            private readonly Vector2 initialPosition;
-            private readonly Vector2 finalPosition;
-            private readonly Vector2 initialScale;
-            private readonly Vector2 finalScale;
-            private readonly double lifeTime;
-            private readonly double startTime;
-            private readonly int hash;
+            private Vector2 initialPosition;
+            private int initialDepth;
 
-            public ParticlePart(Vector2 initialPosition, Vector2 finalPosition, float depth, float ratio, double lifeTime, double startTime, int hash)
+            public Vector2 CurrentPosition { get; private set; }
+
+            public float CurrentDepth { get; private set; }
+
+            public float CurrentSize { get; private set; }
+
+            public float CurrentAlpha { get; private set; }
+
+            public Particle()
             {
-                this.initialPosition = initialPosition;
-                this.finalPosition = finalPosition;
-                this.lifeTime = lifeTime;
-                this.startTime = startTime;
-                this.hash = hash;
-
-                initialScale = new Vector2(depth);
-                finalScale = new Vector2(1 + ((particle_max_scale - 1) * depth * (1 - ratio)));
+                Reset(true);
             }
 
-            public float AlphaAtTime(double time) => (float)Math.Clamp(time / Math.Min(lifeTime, 500), 0, 1);
+            public void Reset(bool randomDepth)
+            {
+                CurrentPosition = initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f));
+                CurrentDepth = initialDepth = randomDepth ? RNG.Next(min_depth, max_depth) : max_depth;
+                updateSize();
+                updateAlpha();
+            }
 
-            public Vector2 PositionAtTime(double time) => Vector2.Lerp(initialPosition, finalPosition, (float)Math.Clamp(time / lifeTime, 0, 1));
+            public void UpdateCurrentPosition(float timeDifference)
+            {
+                CurrentDepth -= timeDifference;
+                CurrentPosition = Vector2.Divide(initialPosition, CurrentDepth / max_depth);
+                updateSize();
+                updateAlpha();
+            }
 
-            public Vector2 ScaleAtTime(double time) => Vector2.Lerp(initialScale, finalScale, (float)Math.Clamp(time / lifeTime, 0, 1));
+            private void updateSize()
+            {
+                CurrentSize = MathExtensions.Map(CurrentDepth, max_depth, min_depth, particle_min_size, particle_max_size);
+            }
 
-            public double GetStartTime() => startTime;
+            private void updateAlpha()
+            {
+                float newAlpha;
 
-            public double GetLifeTime() => lifeTime;
+                if (CurrentDepth < min_depth + 10)
+                {
+                    newAlpha = MathExtensions.Map(CurrentDepth, min_depth, min_depth + 10, 0, 1);
+                }
+                else
+                {
+                    if (CurrentDepth <= initialDepth - max_depth / 10)
+                        newAlpha = 1;
+                    else
+                        newAlpha = MathExtensions.Map(CurrentDepth, initialDepth, initialDepth - max_depth / 10, 0, 1);
+                }
 
-            public int GetHash() => hash;
+                CurrentAlpha = newAlpha;
+            }
         }
     }
 }
