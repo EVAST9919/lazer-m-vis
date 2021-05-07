@@ -1,7 +1,9 @@
 ﻿using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Game.Overlays;
 using osu.Game.Rulesets.Mvis.UI.Objects;
+using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using osu.Game.Tests.Visual;
 using osuTK;
 using osuTK.Graphics;
@@ -13,24 +15,36 @@ namespace osu.Game.Rulesets.Mvis.Tests
         protected override Ruleset CreateRuleset() => new MvisRuleset();
 
         private readonly Particles particles;
+        private readonly NowPlayingOverlay nowPlayingOverlay;
 
         public TestSceneParticles()
         {
-            Add(new Container
+            AddRange(new Drawable[]
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Size = new Vector2(0.5f),
-                Children = new Drawable[]
+                new Container
                 {
-                    new Box
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Size = new Vector2(0.5f),
+                    Children = new Drawable[]
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        Alpha = 0.5f,
-                        Colour = Color4.Red
-                    },
-                    particles = new Particles(),
+                        new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Color4.Black
+                        },
+                        new CurrentRateContainer
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Child = particles = new Particles()
+                        }
+                    }
+                },
+                nowPlayingOverlay = new NowPlayingOverlay
+                {
+                    Origin = Anchor.TopRight,
+                    Anchor = Anchor.TopRight,
                 }
             });
         }
@@ -38,6 +52,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
         protected override void LoadComplete()
         {
             base.LoadComplete();
+            AddStep("Toggle visibility", nowPlayingOverlay.ToggleVisibility);
             AddSliderStep("Restart", 1, 30000, 1000, v => particles.Restart(v));
         }
     }

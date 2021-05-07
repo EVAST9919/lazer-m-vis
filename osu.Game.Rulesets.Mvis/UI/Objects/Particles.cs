@@ -17,8 +17,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
     public class Particles : Sprite
     {
-        private const int min_depth = 1;
-        private const int max_depth = 1500;
+        private const float min_depth = 0.01f;
+        private const float max_depth = 100f;
         private const float particle_max_size = 4;
         private const float particle_min_size = 1;
 
@@ -76,24 +76,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         {
             base.Update();
 
-            var timeDiff = (float)Clock.ElapsedFrameTime * 0.1f;
+            var timeDiff = (float)Clock.ElapsedFrameTime * 0.008f;
 
-            for (int i = 0; i < parts.Count; i++)
-            {
-                parts[i].UpdateCurrentPosition(timeDiff);
-
-                if (parts[i].CurrentDepth < min_depth)
-                {
-                    parts[i].Reset(false);
-                    continue;
-                }
-
-                var position = parts[i].CurrentPosition;
-
-                if (position.X > 0.5f || position.X < -0.5f || position.Y > 0.5f || position.Y < -0.5f)
-                    parts[i].Reset(false);
-
-            }
+            foreach (var p in parts)
+                p.UpdateCurrentPosition(timeDiff);
 
             Invalidate(Invalidation.DrawNode);
         }
@@ -160,7 +146,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private class Particle
         {
             private Vector2 initialPosition;
-            private int initialDepth;
+            private float initialDepth;
+            private bool useFadeIn;
 
             public Vector2 CurrentPosition { get; private set; }
 
@@ -172,13 +159,18 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             public Particle()
             {
-                Reset(true);
+                reset(true, false);
             }
 
-            public void Reset(bool randomDepth)
+            private void reuse() => reset(false, true);
+
+            private void reset(bool randomDepth, bool useFadeIn)
             {
+                this.useFadeIn = useFadeIn;
+
                 CurrentPosition = initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f));
-                CurrentDepth = initialDepth = randomDepth ? RNG.Next(min_depth, max_depth) : max_depth;
+                CurrentDepth = initialDepth = randomDepth ? RNG.NextSingle(min_depth + 0.1f, max_depth) : max_depth;
+
                 updateSize();
                 updateAlpha();
             }
@@ -186,10 +178,26 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             public void UpdateCurrentPosition(float timeDifference)
             {
                 CurrentDepth -= timeDifference;
-                CurrentPosition = Vector2.Divide(initialPosition, CurrentDepth / max_depth);
+
+                if (CurrentDepth < min_depth)
+                {
+                    reuse();
+                    return;
+                }
+
+                CurrentPosition = Vector2.Multiply(initialPosition, max_depth / CurrentDepth);
+
+                if (outOfBounds)
+                {
+                    reuse();
+                    return;
+                }
+
                 updateSize();
                 updateAlpha();
             }
+
+            private bool outOfBounds => CurrentPosition.X > 0.5f || CurrentPosition.X < -0.5f || CurrentPosition.Y > 0.5f || CurrentPosition.Y < -0.5f;
 
             private void updateSize()
             {
@@ -200,17 +208,15 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             {
                 float newAlpha;
 
-                if (CurrentDepth < min_depth + 10)
-                {
-                    newAlpha = MathExtensions.Map(CurrentDepth, min_depth, min_depth + 10, 0, 1);
-                }
-                else
+                if (useFadeIn)
                 {
                     if (CurrentDepth <= initialDepth - max_depth / 10)
                         newAlpha = 1;
                     else
                         newAlpha = MathExtensions.Map(CurrentDepth, initialDepth, initialDepth - max_depth / 10, 0, 1);
                 }
+                else
+                    newAlpha = 1;
 
                 CurrentAlpha = newAlpha;
             }
