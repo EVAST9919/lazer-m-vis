@@ -20,7 +20,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private const float min_depth = 1f;
         private const float max_depth = 1000f;
         private const float particle_max_size = 4;
-        private const float particle_min_size = 1;
+        private const float particle_min_size = 0.5f;
+        private const float speed_multiplier = 0.05f;
 
         [Resolved(canBeNull: true)]
         private MvisRulesetConfigManager config { get; set; }
@@ -75,7 +76,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         {
             base.Update();
 
-            var timeDiff = (float)Clock.ElapsedFrameTime * 0.05f;
+            var timeDiff = (float)Clock.ElapsedFrameTime * speed_multiplier;
 
             foreach (var p in parts)
                 p.UpdateCurrentPosition(timeDiff);
@@ -149,8 +150,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private class Particle
         {
             private Vector2 initialPosition;
-            private float initialDepth;
-            private bool useFadeIn;
             private float currentDepth;
 
             public Vector2 CurrentPosition { get; private set; }
@@ -161,23 +160,19 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             public Particle()
             {
-                reset(true, false);
+                reset(false);
             }
 
-            private void reuse() => reset(false, true);
-
-            private void reset(bool randomDepth, bool useFadeIn)
+            private void reset(bool maxDepth)
             {
-                this.useFadeIn = useFadeIn;
-
                 initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f) * max_depth, RNG.NextSingle(-0.5f, 0.5f) * max_depth);
-                currentDepth = initialDepth = randomDepth ? RNG.NextSingle(min_depth, max_depth) : max_depth;
+                currentDepth = maxDepth ? max_depth : RNG.NextSingle(min_depth, max_depth);
 
                 CurrentPosition = getCurrentPosition();
 
                 if (outOfBounds)
                 {
-                    reset(randomDepth, useFadeIn);
+                    reset(maxDepth);
                     return;
                 }
 
@@ -190,7 +185,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                 if (currentDepth < min_depth)
                 {
-                    reuse();
+                    reset(true);
                     return;
                 }
 
@@ -198,35 +193,22 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                 if (outOfBounds)
                 {
-                    reuse();
+                    reset(true);
                     return;
                 }
 
                 updateProperties();
             }
 
-            private bool outOfBounds => CurrentPosition.X > 0.5f || CurrentPosition.X < -0.5f || CurrentPosition.Y > 0.5f || CurrentPosition.Y < -0.5f;
-
-            private Vector2 getCurrentPosition() => Vector2.Divide(initialPosition, currentDepth);
-
             private void updateProperties()
             {
                 CurrentSize = MathExtensions.Map(currentDepth, max_depth, min_depth, particle_min_size, particle_max_size);
-
-                float newAlpha;
-
-                if (useFadeIn)
-                {
-                    if (currentDepth <= initialDepth - max_depth / 10)
-                        newAlpha = 1;
-                    else
-                        newAlpha = MathExtensions.Map(currentDepth, initialDepth, initialDepth - max_depth / 10, 0, 1);
-                }
-                else
-                    newAlpha = 1;
-
-                CurrentAlpha = newAlpha;
+                CurrentAlpha = CurrentSize < 1 ? MathExtensions.Map(CurrentSize, particle_min_size, 1, 0, 1) : 1;
             }
+
+            private Vector2 getCurrentPosition() => Vector2.Divide(initialPosition, currentDepth);
+
+            private bool outOfBounds => CurrentPosition.X > 0.5f || CurrentPosition.X < -0.5f || CurrentPosition.Y > 0.5f || CurrentPosition.Y < -0.5f;
         }
     }
 }
