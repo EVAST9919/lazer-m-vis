@@ -17,15 +17,15 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
     public class Particles : Sprite
     {
-        private const float min_depth = 0.01f;
-        private const float max_depth = 100f;
+        private const float min_depth = 1f;
+        private const float max_depth = 1000f;
         private const float particle_max_size = 4;
         private const float particle_min_size = 1;
 
         [Resolved(canBeNull: true)]
         private MvisRulesetConfigManager config { get; set; }
 
-        private readonly Bindable<int> count = new Bindable<int>(500);
+        private readonly Bindable<int> count = new Bindable<int>(1000);
         private readonly Bindable<bool> useCustomColour = new Bindable<bool>();
         private readonly Bindable<int> red = new Bindable<int>(0);
         private readonly Bindable<int> green = new Bindable<int>(0);
@@ -76,7 +76,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         {
             base.Update();
 
-            var timeDiff = (float)Clock.ElapsedFrameTime * 0.008f;
+            var timeDiff = (float)Clock.ElapsedFrameTime * 0.05f;
 
             foreach (var p in parts)
                 p.UpdateCurrentPosition(timeDiff);
@@ -119,28 +119,32 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             {
                 foreach (var p in parts)
                 {
-                    Vector2 pos = p.CurrentPosition;
-                    var size = p.CurrentSize;
+                    var rect = getPartRectangle(p.CurrentPosition, p.CurrentSize);
+                    var quad = getQuad(rect);
 
-                    var rect = new RectangleF(
-                        pos.X * sourceSize.X + sourceSize.X / 2 - size / 2,
-                        pos.Y * sourceSize.Y + sourceSize.Y / 2 - size / 2,
-                        size,
-                        size);
+                    drawPart(quad, p.CurrentAlpha, vertexAction);
+                }
+            }
 
-                    // convert to screen space.
-                    var quad = new Quad(
+            private void drawPart(Quad quad, float alpha, Action<TexturedVertex2D> vertexAction)
+            {
+                DrawQuad(Texture, quad, DrawColourInfo.Colour.MultiplyAlpha(alpha), null, vertexAction,
+                        new Vector2(InflationAmount.X / DrawRectangle.Width, InflationAmount.Y / DrawRectangle.Height),
+                        null, TextureCoords);
+            }
+
+            private Quad getQuad(RectangleF rect) => new Quad(
                         Vector2Extensions.Transform(rect.TopLeft, DrawInfo.Matrix),
                         Vector2Extensions.Transform(rect.TopRight, DrawInfo.Matrix),
                         Vector2Extensions.Transform(rect.BottomLeft, DrawInfo.Matrix),
                         Vector2Extensions.Transform(rect.BottomRight, DrawInfo.Matrix)
                     );
 
-                    DrawQuad(Texture, quad, DrawColourInfo.Colour.MultiplyAlpha(p.CurrentAlpha), null, vertexAction,
-                        new Vector2(InflationAmount.X / DrawRectangle.Width, InflationAmount.Y / DrawRectangle.Height),
-                        null, TextureCoords);
-                }
-            }
+            private RectangleF getPartRectangle(Vector2 pos, float size) => new RectangleF(
+                        pos.X * sourceSize.X + sourceSize.X / 2 - size / 2,
+                        pos.Y * sourceSize.Y + sourceSize.Y / 2 - size / 2,
+                        size,
+                        size);
         }
 
         private class Particle
@@ -148,10 +152,9 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             private Vector2 initialPosition;
             private float initialDepth;
             private bool useFadeIn;
+            private float currentDepth;
 
             public Vector2 CurrentPosition { get; private set; }
-
-            public float CurrentDepth { get; private set; }
 
             public float CurrentSize { get; private set; }
 
@@ -168,24 +171,31 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             {
                 this.useFadeIn = useFadeIn;
 
-                CurrentPosition = initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f));
-                CurrentDepth = initialDepth = randomDepth ? RNG.NextSingle(min_depth + 0.1f, max_depth) : max_depth;
+                initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f) * max_depth, RNG.NextSingle(-0.5f, 0.5f) * max_depth);
+                currentDepth = initialDepth = randomDepth ? RNG.NextSingle(min_depth, max_depth) : max_depth;
 
-                updateSize();
-                updateAlpha();
+                CurrentPosition = getCurrentPosition();
+
+                if (outOfBounds)
+                {
+                    reset(randomDepth, useFadeIn);
+                    return;
+                }
+
+                updateProperties();
             }
 
             public void UpdateCurrentPosition(float timeDifference)
             {
-                CurrentDepth -= timeDifference;
+                currentDepth -= timeDifference;
 
-                if (CurrentDepth < min_depth)
+                if (currentDepth < min_depth)
                 {
                     reuse();
                     return;
                 }
 
-                CurrentPosition = Vector2.Multiply(initialPosition, max_depth / CurrentDepth);
+                CurrentPosition = getCurrentPosition();
 
                 if (outOfBounds)
                 {
@@ -193,27 +203,25 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                     return;
                 }
 
-                updateSize();
-                updateAlpha();
+                updateProperties();
             }
 
             private bool outOfBounds => CurrentPosition.X > 0.5f || CurrentPosition.X < -0.5f || CurrentPosition.Y > 0.5f || CurrentPosition.Y < -0.5f;
 
-            private void updateSize()
-            {
-                CurrentSize = MathExtensions.Map(CurrentDepth, max_depth, min_depth, particle_min_size, particle_max_size);
-            }
+            private Vector2 getCurrentPosition() => Vector2.Divide(initialPosition, currentDepth);
 
-            private void updateAlpha()
+            private void updateProperties()
             {
+                CurrentSize = MathExtensions.Map(currentDepth, max_depth, min_depth, particle_min_size, particle_max_size);
+
                 float newAlpha;
 
                 if (useFadeIn)
                 {
-                    if (CurrentDepth <= initialDepth - max_depth / 10)
+                    if (currentDepth <= initialDepth - max_depth / 10)
                         newAlpha = 1;
                     else
-                        newAlpha = MathExtensions.Map(CurrentDepth, initialDepth, initialDepth - max_depth / 10, 0, 1);
+                        newAlpha = MathExtensions.Map(currentDepth, initialDepth, initialDepth - max_depth / 10, 0, 1);
                 }
                 else
                     newAlpha = 1;
