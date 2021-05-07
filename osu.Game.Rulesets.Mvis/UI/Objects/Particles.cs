@@ -16,7 +16,15 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            IsKiai.BindValueChanged(_ => particles.SetRandomDirection());
+            IsKiai.BindValueChanged(kiai =>
+            {
+                if (kiai.NewValue)
+                {
+                    particles.SetRandomDirection();
+                }
+                else
+                    particles.Direction.Value = Direction.Forward;
+            });
         }
     }
 }

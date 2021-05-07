@@ -265,7 +265,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                     case Objects.Direction.Left:
                         initialPosition = null;
-                        CurrentPosition += new Vector2(max_depth / currentDepth * timeDifference * 0.001f, 0);
+                        CurrentPosition += new Vector2(max_depth / currentDepth * timeDifference * 0.0003f, 0);
 
                         if (CurrentPosition.X > 0.5f)
                         {
@@ -275,7 +275,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                     case Objects.Direction.Right:
                         initialPosition = null;
-                        CurrentPosition -= new Vector2(max_depth / currentDepth * timeDifference * 0.001f, 0);
+                        CurrentPosition -= new Vector2(max_depth / currentDepth * timeDifference * 0.0003f, 0);
 
                         if (CurrentPosition.X < -0.5f)
                         {
@@ -285,7 +285,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                     case Objects.Direction.Up:
                         initialPosition = null;
-                        CurrentPosition += new Vector2(0, max_depth / currentDepth * timeDifference * 0.001f);
+                        CurrentPosition += new Vector2(0, max_depth / currentDepth * timeDifference * 0.0003f);
 
                         if (CurrentPosition.Y > 0.5f)
                         {
@@ -295,7 +295,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                     case Objects.Direction.Down:
                         initialPosition = null;
-                        CurrentPosition -= new Vector2(0, max_depth / currentDepth * timeDifference * 0.001f);
+                        CurrentPosition -= new Vector2(0, max_depth / currentDepth * timeDifference * 0.0003f);
 
                         if (CurrentPosition.Y < -0.5f)
                         {
