@@ -15,7 +15,7 @@ using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
-    public class Particles : Sprite
+    public class ParticlesDrawable : Sprite
     {
         private const float min_depth = 1f;
         private const float max_depth = 1000f;
@@ -108,7 +108,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         {
             private readonly List<Particle> parts = new List<Particle>();
 
-            private Particles source => (Particles)Source;
+            private ParticlesDrawable source => (ParticlesDrawable)Source;
 
             private Vector2 sourceSize;
 

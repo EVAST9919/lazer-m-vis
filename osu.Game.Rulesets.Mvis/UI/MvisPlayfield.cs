@@ -54,7 +54,7 @@ namespace osu.Game.Rulesets.Mvis.UI
         {
             if (value.NewValue)
             {
-                particlesPlaceholder.Child = new Particles();
+                particlesPlaceholder.Child = new ParticlesDrawable();
                 return;
             }
 

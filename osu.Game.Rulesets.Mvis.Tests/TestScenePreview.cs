@@ -25,7 +25,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
                 new CurrentRateContainer
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Child = new Particles()
+                    Child = new ParticlesDrawable()
                 },
                 new BeatmapLogo
                 {

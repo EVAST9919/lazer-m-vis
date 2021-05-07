@@ -11,7 +11,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
 {
     public class TestSceneParticles : RulesetTestScene
     {
-        private readonly Particles particles;
+        private readonly ParticlesDrawable particles;
         private readonly NowPlayingOverlay nowPlayingOverlay;
 
         public TestSceneParticles()
@@ -34,7 +34,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
                         new CurrentRateContainer
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Child = particles = new Particles()
+                            Child = particles = new ParticlesDrawable()
                         }
                     }
                 },
