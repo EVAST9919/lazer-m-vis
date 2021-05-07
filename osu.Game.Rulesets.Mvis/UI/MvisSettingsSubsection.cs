@@ -80,6 +80,12 @@ namespace osu.Game.Rulesets.Mvis.UI
                     KeyboardStep = 1,
                     Current = config.GetBindable<int>(MvisRulesetSetting.Rotation)
                 },
+                new SettingsSlider<int>
+                {
+                    LabelText = "Radius",
+                    KeyboardStep = 1,
+                    Current = config.GetBindable<int>(MvisRulesetSetting.Radius)
+                },
                 customColourCheckbox = new SettingsCheckbox
                 {
                     LabelText = "Use custom accent colour",

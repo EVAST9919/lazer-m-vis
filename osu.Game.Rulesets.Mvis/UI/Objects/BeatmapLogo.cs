@@ -13,8 +13,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
     public class BeatmapLogo : CurrentBeatmapProvider
     {
-        private const int radius = 350;
-
         [Resolved(canBeNull: true)]
         private MvisRulesetConfigManager config { get; set; }
 
@@ -22,6 +20,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private readonly Bindable<int> red = new Bindable<int>(0);
         private readonly Bindable<int> green = new Bindable<int>(0);
         private readonly Bindable<int> blue = new Bindable<int>(0);
+        private readonly Bindable<int> radius = new Bindable<int>(350);
 
         private CircularProgress progressGlow;
         private GlowEffect glow;
@@ -31,14 +30,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private void load()
         {
             Origin = Anchor.Centre;
-            Size = new Vector2(radius);
 
             InternalChildren = new Drawable[]
             {
-                visualizer = new MusicVisualizer
-                {
-                    Size = new Vector2(radius - 2)
-                },
+                visualizer = new MusicVisualizer(),
                 new UpdateableBeatmapBackground
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -63,6 +58,18 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             config?.BindWith(MvisRulesetSetting.Green, green);
             config?.BindWith(MvisRulesetSetting.Blue, blue);
             config?.BindWith(MvisRulesetSetting.UseCustomColour, useCustomColour);
+            config?.BindWith(MvisRulesetSetting.Radius, radius);
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            radius.BindValueChanged(r =>
+            {
+                Size = new Vector2(r.NewValue);
+                visualizer.Size = new Vector2(r.NewValue - 2);
+            }, true);
 
             red.BindValueChanged(_ => updateColour());
             green.BindValueChanged(_ => updateColour());

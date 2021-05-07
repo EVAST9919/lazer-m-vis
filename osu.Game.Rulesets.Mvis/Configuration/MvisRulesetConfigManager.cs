@@ -26,6 +26,7 @@ namespace osu.Game.Rulesets.Mvis.Configuration
             SetDefault(MvisRulesetSetting.Blue, 0, 0, 255);
             SetDefault(MvisRulesetSetting.Decay, 200, 100, 500);
             SetDefault(MvisRulesetSetting.Multiplier, 400, 200, 500);
+            SetDefault(MvisRulesetSetting.Radius, 350, 100, 450);
         }
     }
 
@@ -43,7 +44,8 @@ namespace osu.Game.Rulesets.Mvis.Configuration
         Green,
         Blue,
         Decay,
-        Multiplier
+        Multiplier,
+        Radius
     }
 
     public enum BarType

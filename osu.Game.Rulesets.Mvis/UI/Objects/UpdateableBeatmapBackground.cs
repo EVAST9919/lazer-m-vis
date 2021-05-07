@@ -9,6 +9,8 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics.Effects;
 using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using osu.Framework.Graphics.Sprites;
+using osu.Game.Rulesets.Mvis.Configuration;
+using osu.Framework.Allocation;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
@@ -110,9 +112,22 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private class BeatmapName : CompositeDrawable
         {
+            [Resolved(canBeNull: true)]
+            private MvisRulesetConfigManager config { get; set; }
+
+            private readonly Bindable<int> radius = new Bindable<int>(350);
+
+            private readonly WorkingBeatmap beatmap;
+
             public BeatmapName(WorkingBeatmap beatmap = null)
             {
-                RelativeSizeAxes = Axes.Both;
+                this.beatmap = beatmap;
+            }
+
+            [BackgroundDependencyLoader]
+            private void load()
+            {
+                AutoSizeAxes = Axes.Both;
                 RelativePositionAxes = Axes.Y;
 
                 if (beatmap == null)
@@ -144,11 +159,24 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                     }
                 }.WithEffect(new BlurEffect
                 {
-                    Colour = Color4.Black.Opacity(0.7f),
+                    Colour = Color4.Black.Opacity(0.8f),
                     DrawOriginal = true,
-                    Sigma = new Vector2(5),
-                    PadExtent = true
+                    PadExtent = true,
+                    Sigma = new Vector2(5)
                 }));
+
+                config?.BindWith(MvisRulesetSetting.Radius, radius);
+            }
+
+            protected override void LoadComplete()
+            {
+                base.LoadComplete();
+
+                radius.BindValueChanged(r =>
+                {
+                    if (beatmap != null)
+                        Scale = new Vector2(r.NewValue / 350f);
+                }, true);
             }
 
             /// <summary>
