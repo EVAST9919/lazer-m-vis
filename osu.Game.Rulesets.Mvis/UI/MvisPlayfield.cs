@@ -1,9 +1,9 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Rulesets.Mvis.UI.Objects;
-using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using osu.Game.Rulesets.UI;
 
 namespace osu.Game.Rulesets.Mvis.UI
@@ -17,7 +17,7 @@ namespace osu.Game.Rulesets.Mvis.UI
         private readonly Bindable<float> xPos = new Bindable<float>(0.5f);
         private readonly Bindable<float> yPos = new Bindable<float>(0.5f);
 
-        private CurrentRateContainer particlesPlaceholder;
+        private Container particlesPlaceholder;
         private BeatmapLogo logo;
 
         [BackgroundDependencyLoader]
@@ -26,7 +26,7 @@ namespace osu.Game.Rulesets.Mvis.UI
             InternalChildren = new Drawable[]
             {
                 HitObjectContainer,
-                particlesPlaceholder = new CurrentRateContainer
+                particlesPlaceholder = new Container
                 {
                     RelativeSizeAxes = Axes.Both
                 },
@@ -54,7 +54,7 @@ namespace osu.Game.Rulesets.Mvis.UI
         {
             if (value.NewValue)
             {
-                particlesPlaceholder.Child = new ParticlesDrawable();
+                particlesPlaceholder.Child = new Particles();
                 return;
             }
 

@@ -2,7 +2,6 @@
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.Mvis.UI.Objects;
-using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
 using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.Mvis.Tests
@@ -22,11 +21,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.Black
                 },
-                new CurrentRateContainer
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Child = new ParticlesDrawable()
-                },
+                new Particles(),
                 new BeatmapLogo
                 {
                     Anchor = Anchor.Centre

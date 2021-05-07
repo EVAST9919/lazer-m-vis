@@ -1,10 +1,13 @@
-﻿using osu.Framework.Graphics;
+﻿using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.Helpers
 {
     public class CurrentRateContainer : RateAdjustableContainer
     {
+        protected readonly BindableBool IsKiai = new BindableBool();
+
         protected override Container<Drawable> Content => content;
 
         private readonly MusicIntensityController intensityController;
@@ -22,6 +25,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.Helpers
                 },
                 intensityController = new MusicIntensityController()
             });
+
+            IsKiai.BindTo(intensityController.IsKiai);
         }
 
         protected override void LoadComplete()
