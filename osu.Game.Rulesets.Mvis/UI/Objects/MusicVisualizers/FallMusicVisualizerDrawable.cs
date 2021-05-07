@@ -33,12 +33,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             }
         }
 
-        protected override void UpdateData(int index, float timeDifference)
+        protected override void UpdateData(int index, float timeDifference, bool reversed)
         {
-            base.UpdateData(index, timeDifference);
+            base.UpdateData(index, timeDifference, reversed);
 
             currentRawFallAudioData[index] -= maxFallBarValues[index] / (Decay.Value * 4) * timeDifference;
-            smoothFallAudioData[index] = currentRawFallAudioData[index] * HeightMultiplier.Value;
+            smoothFallAudioData[reversed ? BarCount.Value - index - 1 : index] = currentRawFallAudioData[index] * HeightMultiplier.Value;
         }
 
         protected override void PostUpdate()
