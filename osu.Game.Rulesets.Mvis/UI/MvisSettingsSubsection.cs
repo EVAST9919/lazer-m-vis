@@ -51,7 +51,7 @@ namespace osu.Game.Rulesets.Mvis.UI
                 },
                 new SettingsSlider<int>
                 {
-                    LabelText = "Visulizer count",
+                    LabelText = "Visualizer count",
                     Current = config.GetBindable<int>(MvisRulesetSetting.VisualizerAmount),
                     KeyboardStep = 1,
                     TransferValueOnCommit = true
