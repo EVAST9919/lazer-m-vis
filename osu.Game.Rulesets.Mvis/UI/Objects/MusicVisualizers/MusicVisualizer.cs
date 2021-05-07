@@ -84,6 +84,9 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 case BarType.Basic:
                     return new BasicMusicVisualizerDrawable();
 
+                case BarType.Rounded:
+                    return new RoundedMusicVisualizerDrawable();
+
                 case BarType.Fall:
                     return new FallMusicVisualizerDrawable();
 

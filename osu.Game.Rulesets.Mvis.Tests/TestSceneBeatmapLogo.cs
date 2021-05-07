@@ -2,12 +2,11 @@
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.Mvis.UI.Objects;
-using osu.Game.Tests.Visual;
 using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.Mvis.Tests
 {
-    public class TestSceneBeatmapLogo : OsuTestScene
+    public class TestSceneBeatmapLogo : RulesetTestScene
     {
         private readonly NowPlayingOverlay nowPlayingOverlay;
 
