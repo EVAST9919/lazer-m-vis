@@ -23,12 +23,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         public readonly Bindable<int> HeightMultiplier = new Bindable<int>();
         public readonly Bindable<bool> Reversed = new Bindable<bool>();
 
+        public Texture Texture { get; protected set; }
+
         private IShader shader;
-        private readonly Texture texture;
 
         public MusicVisualizerDrawable()
         {
-            texture = Texture.WhitePixel;
+            Texture = Texture.WhitePixel;
         }
 
         [BackgroundDependencyLoader]
@@ -145,7 +146,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 base.ApplyState();
 
                 shader = Source.shader;
-                Texture = Source.texture;
+                Texture = Source.Texture;
                 Size = Source.DrawSize.X;
                 DegreeValue = Source.DegreeValue.Value;
                 BarWidth = Source.BarWidth.Value;

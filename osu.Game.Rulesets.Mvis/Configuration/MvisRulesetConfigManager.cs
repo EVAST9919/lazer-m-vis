@@ -58,6 +58,7 @@ namespace osu.Game.Rulesets.Mvis.Configuration
     {
         Basic,
         Rounded,
-        Fall
+        Fall,
+        Dots
     }
 }
