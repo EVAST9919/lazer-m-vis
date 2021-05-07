@@ -4,16 +4,13 @@ using osu.Framework.Graphics.Shapes;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.Mvis.UI.Objects;
 using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
-using osu.Game.Tests.Visual;
 using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.Mvis.Tests
 {
-    public class TestSceneParticles : OsuTestScene
+    public class TestSceneParticles : RulesetTestScene
     {
-        protected override Ruleset CreateRuleset() => new MvisRuleset();
-
         private readonly Particles particles;
         private readonly NowPlayingOverlay nowPlayingOverlay;
 
