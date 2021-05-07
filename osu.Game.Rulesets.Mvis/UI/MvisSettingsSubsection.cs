@@ -44,6 +44,11 @@ namespace osu.Game.Rulesets.Mvis.UI
                     LabelText = "Bar type",
                     Current = config.GetBindable<BarType>(MvisRulesetSetting.BarType)
                 },
+                new SettingsCheckbox
+                {
+                    LabelText = "Symmetry",
+                    Current = config.GetBindable<bool>(MvisRulesetSetting.Symmetry)
+                },
                 new SettingsSlider<int>
                 {
                     LabelText = "Visulizer count",

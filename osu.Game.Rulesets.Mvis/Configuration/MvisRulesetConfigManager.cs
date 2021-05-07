@@ -16,7 +16,7 @@ namespace osu.Game.Rulesets.Mvis.Configuration
             SetDefault(MvisRulesetSetting.ShowParticles, true);
             SetDefault(MvisRulesetSetting.ParticlesCount, 300, 50, 1000);
             SetDefault(MvisRulesetSetting.BarType, BarType.Rounded);
-            SetDefault(MvisRulesetSetting.VisualizerAmount, 3, 1, 5);
+            SetDefault(MvisRulesetSetting.VisualizerAmount, 3, 1, 10);
             SetDefault(MvisRulesetSetting.BarWidth, 3.0, 1, 20);
             SetDefault(MvisRulesetSetting.BarsPerVisual, 120, 10, 3500);
             SetDefault(MvisRulesetSetting.Rotation, 0, 0, 359);
@@ -29,6 +29,7 @@ namespace osu.Game.Rulesets.Mvis.Configuration
             SetDefault(MvisRulesetSetting.Radius, 350, 100, 450);
             SetDefault(MvisRulesetSetting.LogoPositionX, 0.5f, 0, 1);
             SetDefault(MvisRulesetSetting.LogoPositionY, 0.5f, 0, 1);
+            SetDefault(MvisRulesetSetting.Symmetry, false);
         }
     }
 
@@ -49,7 +50,8 @@ namespace osu.Game.Rulesets.Mvis.Configuration
         Multiplier,
         Radius,
         LogoPositionX,
-        LogoPositionY
+        LogoPositionY,
+        Symmetry
     }
 
     public enum BarType

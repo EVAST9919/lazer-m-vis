@@ -19,6 +19,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         private readonly Bindable<int> decay = new Bindable<int>(200);
         private readonly Bindable<int> multiplier = new Bindable<int>(400);
         private readonly Bindable<BarType> type = new Bindable<BarType>(BarType.Fall);
+        private readonly Bindable<bool> symmetry = new Bindable<bool>(false);
 
         [BackgroundDependencyLoader]
         private void load()
@@ -33,25 +34,27 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             config?.BindWith(MvisRulesetSetting.BarType, type);
             config?.BindWith(MvisRulesetSetting.Decay, decay);
             config?.BindWith(MvisRulesetSetting.Multiplier, multiplier);
+            config?.BindWith(MvisRulesetSetting.Symmetry, symmetry);
         }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
 
+            rotation.BindValueChanged(e => Rotation = e.NewValue + (symmetry.Value ? 180f / visuals.Value : 0));
             totalBarCount.BindValueChanged(_ => updateBarCount());
             visuals.BindValueChanged(_ => updateVisuals());
+            symmetry.BindValueChanged(_ => updateVisuals());
             type.BindValueChanged(_ => updateVisuals(), true);
-            rotation.BindValueChanged(e => Rotation = e.NewValue, true);
         }
 
         private void updateVisuals()
         {
             Clear();
 
-            var degree = 360f / visuals.Value;
+            var degree = 360f / trueVisualsCount;
 
-            for (int i = 0; i < visuals.Value; i++)
+            for (int i = 0; i < trueVisualsCount; i++)
             {
                 Add(createVisualizer().With(v =>
                 {
@@ -63,10 +66,14 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                     v.BarWidth.BindTo(barWidth);
                     v.Decay.BindTo(decay);
                     v.HeightMultiplier.BindTo(multiplier);
+
+                    if (symmetry.Value)
+                        v.Reversed.Value = i % 2 == 0;
                 }));
             }
 
             updateBarCount();
+            rotation.TriggerChange();
         }
 
         private MusicVisualizerDrawable createVisualizer()
@@ -84,7 +91,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
         private void updateBarCount()
         {
-            var barsPerVis = (int)Math.Round((float)totalBarCount.Value / visuals.Value);
+            var barsPerVis = (int)Math.Round((float)totalBarCount.Value / trueVisualsCount);
 
             foreach (var c in Children)
                 ((MusicVisualizerDrawable)c).BarCount.Value = barsPerVis;
@@ -95,5 +102,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             foreach (var c in Children)
                 ((MusicVisualizerDrawable)c).SetAmplitudes(amplitudes);
         }
+
+        private int trueVisualsCount => visuals.Value * (symmetry.Value ? 2 : 1);
     }
 }

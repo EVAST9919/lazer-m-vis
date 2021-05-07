@@ -38,7 +38,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         {
             RelativeSizeAxes = Axes.Both;
             Texture = textures.Get("particle");
-            Blending = BlendingParameters.Additive;
 
             config?.BindWith(MvisRulesetSetting.ParticlesCount, count);
             config?.BindWith(MvisRulesetSetting.Red, red);
