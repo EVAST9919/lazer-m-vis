@@ -165,7 +165,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private class Particle
         {
-            private Vector2 initialPosition;
+            private Vector2? initialPosition;
             private float currentDepth;
 
             public Vector2 CurrentPosition { get; private set; }
@@ -195,14 +195,32 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                     case Objects.Direction.Forward:
                         currentDepth = maxDepth ? max_depth : RNG.NextSingle(min_depth, max_depth);
                         initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f)) * max_depth;
-                        CurrentPosition = getCurrentPosition();
-
+                        CurrentPosition = getCurrentPosition(direction);
                         if (outOfBounds)
                         {
                             reset(maxDepth, direction);
                             return;
                         }
+                        break;
 
+                    case Objects.Direction.Left:
+                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
+                        CurrentPosition = getRandomPositionAtTheLeft();
+                        break;
+
+                    case Objects.Direction.Right:
+                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
+                        CurrentPosition = getRandomPositionAtTheRight();
+                        break;
+
+                    case Objects.Direction.Up:
+                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
+                        CurrentPosition = getRandomPositionAtTheTop();
+                        break;
+
+                    case Objects.Direction.Down:
+                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
+                        CurrentPosition = getRandomPositionAtTheBottom();
                         break;
                 }
 
@@ -223,7 +241,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                             return;
                         }
 
-                        CurrentPosition = getCurrentPosition();
+                        CurrentPosition = getCurrentPosition(direction);
 
                         if (outOfBounds)
                         {
@@ -242,8 +260,47 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                             return;
                         }
 
-                        CurrentPosition = getCurrentPosition();
+                        CurrentPosition = getCurrentPosition(direction);
+                        break;
 
+                    case Objects.Direction.Left:
+                        initialPosition = null;
+                        CurrentPosition += new Vector2(max_depth / currentDepth * timeDifference * 0.001f, 0);
+
+                        if (CurrentPosition.X > 0.5f)
+                        {
+                            reset(true, direction);
+                        }
+                        break;
+
+                    case Objects.Direction.Right:
+                        initialPosition = null;
+                        CurrentPosition -= new Vector2(max_depth / currentDepth * timeDifference * 0.001f, 0);
+
+                        if (CurrentPosition.X < -0.5f)
+                        {
+                            reset(true, direction);
+                        }
+                        break;
+
+                    case Objects.Direction.Up:
+                        initialPosition = null;
+                        CurrentPosition += new Vector2(0, max_depth / currentDepth * timeDifference * 0.001f);
+
+                        if (CurrentPosition.Y > 0.5f)
+                        {
+                            reset(true, direction);
+                        }
+                        break;
+
+                    case Objects.Direction.Down:
+                        initialPosition = null;
+                        CurrentPosition -= new Vector2(0, max_depth / currentDepth * timeDifference * 0.001f);
+
+                        if (CurrentPosition.Y < -0.5f)
+                        {
+                            reset(true, direction);
+                        }
                         break;
                 }
 
@@ -256,38 +313,48 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 CurrentAlpha = CurrentSize < 1 ? MathExtensions.Map(CurrentSize, particle_min_size, 1, 0, 1) : 1;
             }
 
-            private Vector2 getCurrentPosition() => Vector2.Divide(initialPosition, currentDepth);
+            private Vector2 getCurrentPosition(Direction direction)
+            {
+                switch (direction)
+                {
+                    default:
+                    case Objects.Direction.Forward:
+                    case Objects.Direction.Backwards:
+                        if (initialPosition.HasValue)
+                        {
+                            return Vector2.Divide(initialPosition.Value, currentDepth);
+                        }
+                        else
+                        {
+                            initialPosition = CurrentPosition * currentDepth;
+                            return Vector2.Divide(initialPosition.Value, currentDepth);
+                        }
+                }
+            }
 
             private static Vector2 getRandomPositionOnTheEdge()
             {
-                float x = 0;
-                float y = 0;
+                switch (RNG.Next(4))
+                {
+                    default:
+                    case 0:
+                        return getRandomPositionAtTheLeft();
 
-                var side = RNG.Next(4);
+                    case 1:
+                        return getRandomPositionAtTheTop();
 
-                if (side == 0)
-                {
-                    x = -0.5f;
-                    y = RNG.NextSingle(-0.5f, 0.5f);
-                }
-                else if (side == 1)
-                {
-                    y = -0.5f;
-                    x = RNG.NextSingle(-0.5f, 0.5f);
-                }
-                else if (side == 2)
-                {
-                    x = 0.5f;
-                    y = RNG.NextSingle(-0.5f, 0.5f);
-                }
-                else if (side == 3)
-                {
-                    y = 0.5f;
-                    x = RNG.NextSingle(-0.5f, 0.5f);
-                }
+                    case 2:
+                        return getRandomPositionAtTheRight();
 
-                return new Vector2(x, y);
+                    case 3:
+                        return getRandomPositionAtTheBottom();
+                }
             }
+
+            private static Vector2 getRandomPositionAtTheTop() => new Vector2(RNG.NextSingle(-0.5f, 0.5f), -0.5f);
+            private static Vector2 getRandomPositionAtTheBottom() => new Vector2(RNG.NextSingle(-0.5f, 0.5f), 0.5f);
+            private static Vector2 getRandomPositionAtTheLeft() => new Vector2(-0.5f, RNG.NextSingle(-0.5f, 0.5f));
+            private static Vector2 getRandomPositionAtTheRight() => new Vector2(0.5f, RNG.NextSingle(-0.5f, 0.5f));
 
             private bool outOfBounds => CurrentPosition.X > 0.5f || CurrentPosition.X < -0.5f || CurrentPosition.Y > 0.5f || CurrentPosition.Y < -0.5f;
         }
@@ -296,6 +363,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
     public enum Direction
     {
         Forward,
-        Backwards
+        Backwards,
+        Left,
+        Right,
+        Up,
+        Down
     }
 }
