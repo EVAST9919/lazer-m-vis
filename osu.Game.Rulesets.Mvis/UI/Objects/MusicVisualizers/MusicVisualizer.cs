@@ -19,7 +19,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         private readonly Bindable<int> decay = new Bindable<int>(200);
         private readonly Bindable<int> multiplier = new Bindable<int>(400);
         private readonly Bindable<BarType> type = new Bindable<BarType>(BarType.Fall);
-        private readonly Bindable<bool> symmetry = new Bindable<bool>(false);
+        private readonly Bindable<bool> symmetry = new Bindable<bool>(true);
 
         [BackgroundDependencyLoader]
         private void load()
