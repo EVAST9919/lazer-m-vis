@@ -21,7 +21,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private const float max_depth = 1000f;
         private const float particle_max_size = 4;
         private const float particle_min_size = 0.5f;
-        private const float speed_multiplier = 0.05f;
+        private const float depth_speed_multiplier = 0.05f;
+        private const float side_speed_multiplier = 0.0005f;
 
         public readonly Bindable<Direction> Direction = new Bindable<Direction>();
 
@@ -92,10 +93,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         {
             base.Update();
 
-            var timeDiff = (float)Clock.ElapsedFrameTime * speed_multiplier;
+            var timeDiff = (float)Clock.ElapsedFrameTime * depth_speed_multiplier;
+            var multiplier = Math.Max(DrawSize.Y, DrawSize.X) / Math.Min(DrawSize.Y, DrawSize.X);
+            bool horizontalIsFaster = DrawSize.Y >= DrawSize.X;
 
             foreach (var p in parts)
-                p.UpdateCurrentPosition(timeDiff, Direction.Value);
+                p.UpdateCurrentPosition(timeDiff, Direction.Value, multiplier, horizontalIsFaster);
 
             Invalidate(Invalidation.DrawNode);
         }
@@ -227,7 +230,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 updateProperties();
             }
 
-            public void UpdateCurrentPosition(float timeDifference, Direction direction)
+            public void UpdateCurrentPosition(float timeDifference, Direction direction, float multiplier, bool horizontalIsFaster)
             {
                 switch (direction)
                 {
@@ -265,7 +268,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                     case Objects.Direction.Left:
                         initialPosition = null;
-                        CurrentPosition += new Vector2(max_depth / currentDepth * timeDifference * 0.0003f, 0);
+                        CurrentPosition += new Vector2(max_depth / currentDepth * timeDifference * (horizontalIsFaster ? multiplier : 1) * side_speed_multiplier, 0);
 
                         if (CurrentPosition.X > 0.5f)
                         {
@@ -275,7 +278,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                     case Objects.Direction.Right:
                         initialPosition = null;
-                        CurrentPosition -= new Vector2(max_depth / currentDepth * timeDifference * 0.0003f, 0);
+                        CurrentPosition -= new Vector2(max_depth / currentDepth * timeDifference * (horizontalIsFaster ? multiplier : 1) * side_speed_multiplier, 0);
 
                         if (CurrentPosition.X < -0.5f)
                         {
@@ -285,7 +288,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                     case Objects.Direction.Up:
                         initialPosition = null;
-                        CurrentPosition += new Vector2(0, max_depth / currentDepth * timeDifference * 0.0003f);
+                        CurrentPosition += new Vector2(0, max_depth / currentDepth * timeDifference * (horizontalIsFaster ? 1 : multiplier) * side_speed_multiplier);
 
                         if (CurrentPosition.Y > 0.5f)
                         {
@@ -295,7 +298,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                     case Objects.Direction.Down:
                         initialPosition = null;
-                        CurrentPosition -= new Vector2(0, max_depth / currentDepth * timeDifference * 0.0003f);
+                        CurrentPosition -= new Vector2(0, max_depth / currentDepth * timeDifference * (horizontalIsFaster ? 1 : multiplier) * side_speed_multiplier);
 
                         if (CurrentPosition.Y < -0.5f)
                         {
