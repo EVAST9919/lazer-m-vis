@@ -23,6 +23,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private const float particle_min_size = 0.5f;
         private const float speed_multiplier = 0.05f;
 
+        public readonly BindableBool Backwards = new BindableBool();
+
         [Resolved(canBeNull: true)]
         private MvisRulesetConfigManager config { get; set; }
 
@@ -52,6 +54,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             base.LoadComplete();
 
             count.BindValueChanged(c => Restart(c.NewValue), true);
+            Backwards.BindValueChanged(b =>
+            {
+                foreach (var p in parts)
+                {
+                    p.Backwards = b.NewValue;
+                }
+            }, true);
 
             red.BindValueChanged(_ => updateColour());
             green.BindValueChanged(_ => updateColour());
@@ -64,7 +73,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             parts.Clear();
 
             for (int i = 0; i < particleCount; i++)
-                parts.Add(new Particle());
+                parts.Add(new Particle
+                {
+                    Backwards = Backwards.Value
+                });
         }
 
         private void updateColour()
@@ -158,22 +170,36 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             public float CurrentAlpha { get; private set; }
 
+            public bool Backwards { get; set; }
+
             public Particle()
             {
-                reset(false);
+                reset(false, BoundsCheck.MustBeInBounds);
             }
 
-            private void reset(bool maxDepth)
+            private void reset(bool maxDepth, BoundsCheck boundsCheck)
             {
-                initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f) * max_depth, RNG.NextSingle(-0.5f, 0.5f) * max_depth);
-                currentDepth = maxDepth ? max_depth : RNG.NextSingle(min_depth, max_depth);
-
-                CurrentPosition = getCurrentPosition();
-
-                if (outOfBounds)
+                switch (boundsCheck)
                 {
-                    reset(maxDepth);
-                    return;
+                    default:
+                    case BoundsCheck.MustBeOutOfBounds:
+                        CurrentPosition = getRandomPositionOnTheEdge();
+                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
+                        initialPosition = CurrentPosition * currentDepth;
+                        break;
+
+                    case BoundsCheck.MustBeInBounds:
+                        currentDepth = maxDepth ? max_depth : RNG.NextSingle(min_depth, max_depth);
+                        initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f)) * max_depth;
+                        CurrentPosition = getCurrentPosition();
+
+                        if (outOfBounds)
+                        {
+                            reset(maxDepth, boundsCheck);
+                            return;
+                        }
+
+                        break;
                 }
 
                 updateProperties();
@@ -181,20 +207,35 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             public void UpdateCurrentPosition(float timeDifference)
             {
-                currentDepth -= timeDifference;
-
-                if (currentDepth < min_depth)
+                if (Backwards)
                 {
-                    reset(true);
-                    return;
+                    currentDepth += timeDifference;
+
+                    if (currentDepth > max_depth)
+                    {
+                        reset(false, BoundsCheck.MustBeOutOfBounds);
+                        return;
+                    }
+
+                    CurrentPosition = getCurrentPosition();
                 }
-
-                CurrentPosition = getCurrentPosition();
-
-                if (outOfBounds)
+                else
                 {
-                    reset(true);
-                    return;
+                    currentDepth -= timeDifference;
+
+                    if (currentDepth < min_depth)
+                    {
+                        reset(true, BoundsCheck.MustBeInBounds);
+                        return;
+                    }
+
+                    CurrentPosition = getCurrentPosition();
+
+                    if (outOfBounds)
+                    {
+                        reset(true, BoundsCheck.MustBeInBounds);
+                        return;
+                    }
                 }
 
                 updateProperties();
@@ -208,7 +249,44 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             private Vector2 getCurrentPosition() => Vector2.Divide(initialPosition, currentDepth);
 
+            private static Vector2 getRandomPositionOnTheEdge()
+            {
+                float x = 0;
+                float y = 0;
+
+                var side = RNG.Next(4);
+
+                if (side == 0)
+                {
+                    x = -0.5f;
+                    y = RNG.NextSingle(-0.5f, 0.5f);
+                }
+                else if (side == 1)
+                {
+                    y = -0.5f;
+                    x = RNG.NextSingle(-0.5f, 0.5f);
+                }
+                else if (side == 2)
+                {
+                    x = 0.5f;
+                    y = RNG.NextSingle(-0.5f, 0.5f);
+                }
+                else if (side == 3)
+                {
+                    y = 0.5f;
+                    x = RNG.NextSingle(-0.5f, 0.5f);
+                }
+
+                return new Vector2(x, y);
+            }
+
             private bool outOfBounds => CurrentPosition.X > 0.5f || CurrentPosition.X < -0.5f || CurrentPosition.Y > 0.5f || CurrentPosition.Y < -0.5f;
+
+            private enum BoundsCheck
+            {
+                MustBeInBounds,
+                MustBeOutOfBounds
+            }
         }
     }
 }
