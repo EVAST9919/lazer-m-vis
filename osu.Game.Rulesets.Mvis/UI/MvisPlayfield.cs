@@ -1,7 +1,6 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Game.Graphics.Containers;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Rulesets.Mvis.UI.Objects;
 using osu.Game.Rulesets.Mvis.UI.Objects.Helpers;
@@ -15,8 +14,11 @@ namespace osu.Game.Rulesets.Mvis.UI
         private MvisRulesetConfigManager config { get; set; }
 
         private readonly Bindable<bool> showParticles = new Bindable<bool>(true);
+        private readonly Bindable<float> xPos = new Bindable<float>(0.5f);
+        private readonly Bindable<float> yPos = new Bindable<float>(0.5f);
 
         private CurrentRateContainer particlesPlaceholder;
+        private BeatmapLogo logo;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -28,17 +30,23 @@ namespace osu.Game.Rulesets.Mvis.UI
                 {
                     RelativeSizeAxes = Axes.Both
                 },
-                new ParallaxContainer
+                logo = new BeatmapLogo
                 {
-                    ParallaxAmount = -0.0025f,
-                    Child = new BeatmapLogo
-                    {
-                        Anchor = Anchor.Centre,
-                    }
+                    RelativePositionAxes = Axes.Both
                 }
             };
 
             config?.BindWith(MvisRulesetSetting.ShowParticles, showParticles);
+            config?.BindWith(MvisRulesetSetting.LogoPositionX, xPos);
+            config?.BindWith(MvisRulesetSetting.LogoPositionY, yPos);
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            xPos.BindValueChanged(x => logo.X = x.NewValue, true);
+            yPos.BindValueChanged(y => logo.Y = y.NewValue, true);
             showParticles.BindValueChanged(onParticlesVisibilityChanged, true);
         }
 

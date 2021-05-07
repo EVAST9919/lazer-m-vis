@@ -1,6 +1,7 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osuTK;
@@ -86,6 +87,18 @@ namespace osu.Game.Rulesets.Mvis.UI
                     KeyboardStep = 1,
                     Current = config.GetBindable<int>(MvisRulesetSetting.Radius)
                 },
+                new SettingsSlider<float, PositionSlider>
+                {
+                    LabelText = "X Position",
+                    KeyboardStep = 0.01f,
+                    Current = config.GetBindable<float>(MvisRulesetSetting.LogoPositionX)
+                },
+                new SettingsSlider<float, PositionSlider>
+                {
+                    LabelText = "Y Position",
+                    KeyboardStep = 0.01f,
+                    Current = config.GetBindable<float>(MvisRulesetSetting.LogoPositionY)
+                },
                 customColourCheckbox = new SettingsCheckbox
                 {
                     LabelText = "Use custom accent colour",
@@ -148,6 +161,11 @@ namespace osu.Game.Rulesets.Mvis.UI
             }, true);
 
             resizableContainer.FinishTransforms();
+        }
+
+        private class PositionSlider : OsuSliderBar<float>
+        {
+            public override string TooltipText => Current.Value.ToString(@"0.##");
         }
     }
 }
