@@ -51,7 +51,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
             base.LoadComplete();
             AddStep("Toggle visibility", nowPlayingOverlay.ToggleVisibility);
             AddSliderStep("Restart", 1, 30000, 1000, v => particles.Restart(v));
-            AddStep("Toggle backwards", particles.Backwards.Toggle);
+            AddStep("Toggle direction", particles.SetRandomDirection);
         }
     }
 }

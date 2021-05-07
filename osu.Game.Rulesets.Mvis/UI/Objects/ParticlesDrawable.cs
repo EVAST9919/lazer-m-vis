@@ -23,7 +23,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private const float particle_min_size = 0.5f;
         private const float speed_multiplier = 0.05f;
 
-        public readonly BindableBool Backwards = new BindableBool();
+        public readonly Bindable<Direction> Direction = new Bindable<Direction>();
 
         [Resolved(canBeNull: true)]
         private MvisRulesetConfigManager config { get; set; }
@@ -54,13 +54,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             base.LoadComplete();
 
             count.BindValueChanged(c => Restart(c.NewValue), true);
-            Backwards.BindValueChanged(b =>
-            {
-                foreach (var p in parts)
-                {
-                    p.Backwards = b.NewValue;
-                }
-            }, true);
 
             red.BindValueChanged(_ => updateColour());
             green.BindValueChanged(_ => updateColour());
@@ -73,10 +66,21 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             parts.Clear();
 
             for (int i = 0; i < particleCount; i++)
-                parts.Add(new Particle
-                {
-                    Backwards = Backwards.Value
-                });
+                parts.Add(new Particle());
+        }
+
+        public void SetRandomDirection()
+        {
+            var count = Enum.GetValues(typeof(Direction)).Length;
+            var newDirection = (Direction)RNG.Next(count);
+
+            if (Direction.Value == newDirection)
+            {
+                SetRandomDirection();
+                return;
+            }
+
+            Direction.Value = newDirection;
         }
 
         private void updateColour()
@@ -91,7 +95,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             var timeDiff = (float)Clock.ElapsedFrameTime * speed_multiplier;
 
             foreach (var p in parts)
-                p.UpdateCurrentPosition(timeDiff);
+                p.UpdateCurrentPosition(timeDiff, Direction.Value);
 
             Invalidate(Invalidation.DrawNode);
         }
@@ -174,28 +178,28 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             public Particle()
             {
-                reset(false, BoundsCheck.MustBeInBounds);
+                reset(false, Objects.Direction.Forward);
             }
 
-            private void reset(bool maxDepth, BoundsCheck boundsCheck)
+            private void reset(bool maxDepth, Direction direction)
             {
-                switch (boundsCheck)
+                switch (direction)
                 {
                     default:
-                    case BoundsCheck.MustBeOutOfBounds:
+                    case Objects.Direction.Backwards:
                         CurrentPosition = getRandomPositionOnTheEdge();
                         currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
                         initialPosition = CurrentPosition * currentDepth;
                         break;
 
-                    case BoundsCheck.MustBeInBounds:
+                    case Objects.Direction.Forward:
                         currentDepth = maxDepth ? max_depth : RNG.NextSingle(min_depth, max_depth);
                         initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f)) * max_depth;
                         CurrentPosition = getCurrentPosition();
 
                         if (outOfBounds)
                         {
-                            reset(maxDepth, boundsCheck);
+                            reset(maxDepth, direction);
                             return;
                         }
 
@@ -205,37 +209,42 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 updateProperties();
             }
 
-            public void UpdateCurrentPosition(float timeDifference)
+            public void UpdateCurrentPosition(float timeDifference, Direction direction)
             {
-                if (Backwards)
+                switch (direction)
                 {
-                    currentDepth += timeDifference;
+                    default:
+                    case Objects.Direction.Forward:
+                        currentDepth -= timeDifference;
 
-                    if (currentDepth > max_depth)
-                    {
-                        reset(false, BoundsCheck.MustBeOutOfBounds);
-                        return;
-                    }
+                        if (currentDepth < min_depth)
+                        {
+                            reset(true, direction);
+                            return;
+                        }
 
-                    CurrentPosition = getCurrentPosition();
-                }
-                else
-                {
-                    currentDepth -= timeDifference;
+                        CurrentPosition = getCurrentPosition();
 
-                    if (currentDepth < min_depth)
-                    {
-                        reset(true, BoundsCheck.MustBeInBounds);
-                        return;
-                    }
+                        if (outOfBounds)
+                        {
+                            reset(true, direction);
+                            return;
+                        }
 
-                    CurrentPosition = getCurrentPosition();
+                        break;
 
-                    if (outOfBounds)
-                    {
-                        reset(true, BoundsCheck.MustBeInBounds);
-                        return;
-                    }
+                    case Objects.Direction.Backwards:
+                        currentDepth += timeDifference;
+
+                        if (currentDepth > max_depth)
+                        {
+                            reset(false, direction);
+                            return;
+                        }
+
+                        CurrentPosition = getCurrentPosition();
+
+                        break;
                 }
 
                 updateProperties();
@@ -281,12 +290,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             }
 
             private bool outOfBounds => CurrentPosition.X > 0.5f || CurrentPosition.X < -0.5f || CurrentPosition.Y > 0.5f || CurrentPosition.Y < -0.5f;
-
-            private enum BoundsCheck
-            {
-                MustBeInBounds,
-                MustBeOutOfBounds
-            }
         }
+    }
+
+    public enum Direction
+    {
+        Forward,
+        Backwards
     }
 }
