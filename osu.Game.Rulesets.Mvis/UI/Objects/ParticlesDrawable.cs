@@ -168,7 +168,11 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private class Particle
         {
+            /// <summary>
+            /// Position at the minimum depth
+            /// </summary>
             private Vector2? initialPosition;
+
             private float currentDepth;
 
             public Vector2 CurrentPosition { get; private set; }
@@ -181,18 +185,18 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             public Particle()
             {
-                reset(false, Objects.Direction.Forward);
+                reset(Objects.Direction.Forward, false);
             }
 
-            private void reset(bool maxDepth, Direction direction)
+            private void reset(Direction direction, bool maxDepth = true)
             {
                 switch (direction)
                 {
                     default:
                     case Objects.Direction.Backwards:
-                        CurrentPosition = getRandomPositionOnTheEdge();
-                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
-                        initialPosition = CurrentPosition * currentDepth;
+                        initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f)) * max_depth;
+                        CurrentPosition = getPositionOnTheEdge(Vector2.Divide(initialPosition.Value, max_depth));
+                        currentDepth = initialPosition.Value.X / CurrentPosition.X;
                         break;
 
                     case Objects.Direction.Forward:
@@ -201,28 +205,28 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                         CurrentPosition = getCurrentPosition(direction);
                         if (outOfBounds)
                         {
-                            reset(maxDepth, direction);
+                            reset(direction, maxDepth);
                             return;
                         }
                         break;
 
                     case Objects.Direction.Left:
-                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
+                        reuseCurrentDepth();
                         CurrentPosition = getRandomPositionAtTheLeft();
                         break;
 
                     case Objects.Direction.Right:
-                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
+                        reuseCurrentDepth();
                         CurrentPosition = getRandomPositionAtTheRight();
                         break;
 
                     case Objects.Direction.Up:
-                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
+                        reuseCurrentDepth();
                         CurrentPosition = getRandomPositionAtTheTop();
                         break;
 
                     case Objects.Direction.Down:
-                        currentDepth = RNG.NextSingle(max_depth / 10, max_depth);
+                        reuseCurrentDepth();
                         CurrentPosition = getRandomPositionAtTheBottom();
                         break;
                 }
@@ -240,7 +244,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                         if (currentDepth < min_depth)
                         {
-                            reset(true, direction);
+                            reset(direction);
                             return;
                         }
 
@@ -248,7 +252,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                         if (outOfBounds)
                         {
-                            reset(true, direction);
+                            reset(direction);
                             return;
                         }
 
@@ -259,7 +263,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                         if (currentDepth > max_depth)
                         {
-                            reset(false, direction);
+                            reset(direction);
                             return;
                         }
 
@@ -272,7 +276,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                         if (CurrentPosition.X > 0.5f)
                         {
-                            reset(true, direction);
+                            reset(direction);
                         }
                         break;
 
@@ -282,7 +286,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                         if (CurrentPosition.X < -0.5f)
                         {
-                            reset(true, direction);
+                            reset(direction);
                         }
                         break;
 
@@ -292,7 +296,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                         if (CurrentPosition.Y > 0.5f)
                         {
-                            reset(true, direction);
+                            reset(direction);
                         }
                         break;
 
@@ -302,7 +306,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                         if (CurrentPosition.Y < -0.5f)
                         {
-                            reset(true, direction);
+                            reset(direction);
                         }
                         break;
                 }
@@ -335,23 +339,26 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 }
             }
 
-            private static Vector2 getRandomPositionOnTheEdge()
+            private static Vector2 getPositionOnTheEdge(Vector2 inBoundsPosition)
             {
-                switch (RNG.Next(4))
+                float x;
+                float y;
+                float ratio;
+
+                if (Math.Abs(inBoundsPosition.X) > Math.Abs(inBoundsPosition.Y))
                 {
-                    default:
-                    case 0:
-                        return getRandomPositionAtTheLeft();
-
-                    case 1:
-                        return getRandomPositionAtTheTop();
-
-                    case 2:
-                        return getRandomPositionAtTheRight();
-
-                    case 3:
-                        return getRandomPositionAtTheBottom();
+                    ratio = Math.Abs(inBoundsPosition.X) / 0.5f;
+                    x = inBoundsPosition.X > 0 ? 0.5f : -0.5f;
+                    y = inBoundsPosition.Y / ratio;
                 }
+                else
+                {
+                    ratio = Math.Abs(inBoundsPosition.Y) / 0.5f;
+                    y = inBoundsPosition.Y > 0 ? 0.5f : -0.5f;
+                    x = inBoundsPosition.X / ratio;
+                }
+
+                return new Vector2(x, y);
             }
 
             private static Vector2 getRandomPositionAtTheTop() => new Vector2(RNG.NextSingle(-0.5f, 0.5f), -0.5f);
@@ -360,6 +367,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             private static Vector2 getRandomPositionAtTheRight() => new Vector2(0.5f, RNG.NextSingle(-0.5f, 0.5f));
 
             private bool outOfBounds => CurrentPosition.X > 0.5f || CurrentPosition.X < -0.5f || CurrentPosition.Y > 0.5f || CurrentPosition.Y < -0.5f;
+
+            private void reuseCurrentDepth() => currentDepth = currentDepth == 0 ? RNG.NextSingle(max_depth / 10, max_depth) : currentDepth;
         }
     }
 

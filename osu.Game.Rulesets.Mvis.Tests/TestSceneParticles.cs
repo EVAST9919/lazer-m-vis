@@ -22,8 +22,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Size = new Vector2(0.5f),
+                    Size = new Vector2(500),
                     Children = new Drawable[]
                     {
                         new Box
