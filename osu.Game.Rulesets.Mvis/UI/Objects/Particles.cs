@@ -23,7 +23,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                     particles.SetRandomDirection();
                 }
                 else
-                    particles.Direction.Value = Direction.Forward;
+                    particles.Direction.Value = MoveDirection.Forward;
             });
         }
     }

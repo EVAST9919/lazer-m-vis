@@ -24,7 +24,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private const float depth_speed_multiplier = 0.05f;
         private const float side_speed_multiplier = 0.0005f;
 
-        public readonly Bindable<Direction> Direction = new Bindable<Direction>();
+        public readonly Bindable<MoveDirection> Direction = new Bindable<MoveDirection>();
 
         [Resolved(canBeNull: true)]
         private MvisRulesetConfigManager config { get; set; }
@@ -72,8 +72,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         public void SetRandomDirection()
         {
-            var count = Enum.GetValues(typeof(Direction)).Length;
-            var newDirection = (Direction)RNG.Next(count);
+            var count = Enum.GetValues(typeof(MoveDirection)).Length;
+            var newDirection = (MoveDirection)RNG.Next(count);
 
             if (Direction.Value == newDirection)
             {
@@ -185,21 +185,21 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
             public Particle()
             {
-                reset(Objects.Direction.Forward, false);
+                reset(MoveDirection.Forward, false);
             }
 
-            private void reset(Direction direction, bool maxDepth = true)
+            private void reset(MoveDirection direction, bool maxDepth = true)
             {
                 switch (direction)
                 {
                     default:
-                    case Objects.Direction.Backwards:
+                    case MoveDirection.Backwards:
                         initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f)) * max_depth;
                         CurrentPosition = getPositionOnTheEdge(Vector2.Divide(initialPosition.Value, max_depth));
                         currentDepth = initialPosition.Value.X / CurrentPosition.X;
                         break;
 
-                    case Objects.Direction.Forward:
+                    case MoveDirection.Forward:
                         currentDepth = maxDepth ? max_depth : RNG.NextSingle(min_depth, max_depth);
                         initialPosition = new Vector2(RNG.NextSingle(-0.5f, 0.5f), RNG.NextSingle(-0.5f, 0.5f)) * max_depth;
                         CurrentPosition = getCurrentPosition(direction);
@@ -210,23 +210,19 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                         }
                         break;
 
-                    case Objects.Direction.Left:
-                        reuseCurrentDepth();
+                    case MoveDirection.Left:
                         CurrentPosition = getRandomPositionAtTheLeft();
                         break;
 
-                    case Objects.Direction.Right:
-                        reuseCurrentDepth();
+                    case MoveDirection.Right:
                         CurrentPosition = getRandomPositionAtTheRight();
                         break;
 
-                    case Objects.Direction.Up:
-                        reuseCurrentDepth();
+                    case MoveDirection.Up:
                         CurrentPosition = getRandomPositionAtTheTop();
                         break;
 
-                    case Objects.Direction.Down:
-                        reuseCurrentDepth();
+                    case MoveDirection.Down:
                         CurrentPosition = getRandomPositionAtTheBottom();
                         break;
                 }
@@ -234,12 +230,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 updateProperties();
             }
 
-            public void UpdateCurrentPosition(float timeDifference, Direction direction, float multiplier, bool horizontalIsFaster)
+            public void UpdateCurrentPosition(float timeDifference, MoveDirection direction, float multiplier, bool horizontalIsFaster)
             {
                 switch (direction)
                 {
                     default:
-                    case Objects.Direction.Forward:
+                    case MoveDirection.Forward:
                         currentDepth -= timeDifference;
 
                         if (currentDepth < min_depth)
@@ -258,7 +254,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
                         break;
 
-                    case Objects.Direction.Backwards:
+                    case MoveDirection.Backwards:
                         currentDepth += timeDifference;
 
                         if (currentDepth > max_depth)
@@ -270,7 +266,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                         CurrentPosition = getCurrentPosition(direction);
                         break;
 
-                    case Objects.Direction.Left:
+                    case MoveDirection.Left:
                         initialPosition = null;
                         CurrentPosition += new Vector2(max_depth / currentDepth * timeDifference * (horizontalIsFaster ? multiplier : 1) * side_speed_multiplier, 0);
 
@@ -280,7 +276,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                         }
                         break;
 
-                    case Objects.Direction.Right:
+                    case MoveDirection.Right:
                         initialPosition = null;
                         CurrentPosition -= new Vector2(max_depth / currentDepth * timeDifference * (horizontalIsFaster ? multiplier : 1) * side_speed_multiplier, 0);
 
@@ -290,7 +286,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                         }
                         break;
 
-                    case Objects.Direction.Up:
+                    case MoveDirection.Up:
                         initialPosition = null;
                         CurrentPosition += new Vector2(0, max_depth / currentDepth * timeDifference * (horizontalIsFaster ? 1 : multiplier) * side_speed_multiplier);
 
@@ -300,7 +296,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                         }
                         break;
 
-                    case Objects.Direction.Down:
+                    case MoveDirection.Down:
                         initialPosition = null;
                         CurrentPosition -= new Vector2(0, max_depth / currentDepth * timeDifference * (horizontalIsFaster ? 1 : multiplier) * side_speed_multiplier);
 
@@ -320,13 +316,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                 CurrentAlpha = CurrentSize < 1 ? MathExtensions.Map(CurrentSize, particle_min_size, 1, 0, 1) : 1;
             }
 
-            private Vector2 getCurrentPosition(Direction direction)
+            private Vector2 getCurrentPosition(MoveDirection direction)
             {
                 switch (direction)
                 {
                     default:
-                    case Objects.Direction.Forward:
-                    case Objects.Direction.Backwards:
+                    case MoveDirection.Forward:
+                    case MoveDirection.Backwards:
                         if (initialPosition.HasValue)
                         {
                             return Vector2.Divide(initialPosition.Value, currentDepth);
@@ -367,12 +363,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             private static Vector2 getRandomPositionAtTheRight() => new Vector2(0.5f, RNG.NextSingle(-0.5f, 0.5f));
 
             private bool outOfBounds => CurrentPosition.X > 0.5f || CurrentPosition.X < -0.5f || CurrentPosition.Y > 0.5f || CurrentPosition.Y < -0.5f;
-
-            private void reuseCurrentDepth() => currentDepth = currentDepth == 0 ? RNG.NextSingle(max_depth / 10, max_depth) : currentDepth;
         }
     }
 
-    public enum Direction
+    public enum MoveDirection
     {
         Forward,
         Backwards,
