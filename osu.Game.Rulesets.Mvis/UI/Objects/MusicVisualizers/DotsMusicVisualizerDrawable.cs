@@ -58,8 +58,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                     rectangle,
                     DrawColourInfo.Colour,
                     null,
-                    VertexBatch.AddAction,
-                    Vector2.Divide(inflation, dotSize.Yx));
+                    VertexBatch.AddAction);
             }
         }
     }
