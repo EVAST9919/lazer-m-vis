@@ -69,64 +69,57 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 fallAudioData.AddRange(Source.smoothFallAudioData);
             }
 
-            protected override void Draw()
+            protected override void DrawBar(int index, float spacing, Vector2 inflation)
             {
-                Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
+                float rotation = MathHelper.DegreesToRadians(index * spacing - 90);
+                float rotationCos = MathF.Cos(rotation);
+                float rotationSin = MathF.Sin(rotation);
 
-                float spacing = DegreeValue / AudioData.Count;
+                var barPosition = new Vector2(rotationCos / 2 + 0.5f, rotationSin / 2 + 0.5f) * Size.X;
+                var barSize = new Vector2((float)BarWidth, 2 + AudioData[index]);
 
-                for (int i = 0; i < AudioData.Count; i++)
-                {
-                    float rotation = MathHelper.DegreesToRadians(i * spacing - 90);
-                    float rotationCos = MathF.Cos(rotation);
-                    float rotationSin = MathF.Sin(rotation);
+                var bottomOffset = new Vector2(-rotationSin * barSize.X / 2, rotationCos * barSize.X / 2);
+                var amplitudeOffset = new Vector2(rotationCos * barSize.Y, rotationSin * barSize.Y);
 
-                    var barPosition = new Vector2(rotationCos / 2 + 0.5f, rotationSin / 2 + 0.5f) * Size.X;
-                    var barSize = new Vector2((float)BarWidth, 2 + AudioData[i]);
+                var rectangle = new Quad(
+                        Vector2Extensions.Transform(barPosition - bottomOffset, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(barPosition - bottomOffset + amplitudeOffset, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(barPosition + bottomOffset, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(barPosition + bottomOffset + amplitudeOffset, DrawInfo.Matrix)
+                    );
 
-                    var bottomOffset = new Vector2(-rotationSin * barSize.X / 2, rotationCos * barSize.X / 2);
-                    var amplitudeOffset = new Vector2(rotationCos * barSize.Y, rotationSin * barSize.Y);
+                DrawQuad(
+                    Texture,
+                    rectangle,
+                    DrawColourInfo.Colour,
+                    null,
+                    VertexBatch.AddAction,
+                    Vector2.Divide(inflation, barSize.Yx));
 
-                    var rectangle = new Quad(
-                            Vector2Extensions.Transform(barPosition - bottomOffset, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(barPosition - bottomOffset + amplitudeOffset, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(barPosition + bottomOffset, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(barPosition + bottomOffset + amplitudeOffset, DrawInfo.Matrix)
-                        );
+                // Fall bar
 
-                    DrawQuad(
-                        Texture,
-                        rectangle,
-                        DrawColourInfo.Colour,
-                        null,
-                        VertexBatch.AddAction,
-                        Vector2.Divide(inflation, barSize.Yx));
+                var scale = (fallAudioData[index] * 2 + Size.X) / Size.X;
+                var multiplier = 1f / (scale * 2);
 
-                    // Fall bar
+                var fallBarPosition = new Vector2(rotationCos / 2 + multiplier, rotationSin / 2 + multiplier) * Size.X * scale;
+                var fallBarSize = new Vector2((float)BarWidth, 2);
 
-                    var scale = (fallAudioData[i] * 2 + Size.X) / Size.X;
-                    var multiplier = 1f / (scale * 2);
+                var fallBarAmplitudeOffset = new Vector2(rotationCos * fallBarSize.Y, rotationSin * fallBarSize.Y);
 
-                    var fallBarPosition = new Vector2(rotationCos / 2 + multiplier, rotationSin / 2 + multiplier) * Size.X * scale;
-                    var fallBarSize = new Vector2((float)BarWidth, 2);
+                var fallBarRectangle = new Quad(
+                        Vector2Extensions.Transform(fallBarPosition - bottomOffset, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(fallBarPosition - bottomOffset + fallBarAmplitudeOffset, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(fallBarPosition + bottomOffset, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(fallBarPosition + bottomOffset + fallBarAmplitudeOffset, DrawInfo.Matrix)
+                    );
 
-                    var fallBarAmplitudeOffset = new Vector2(rotationCos * fallBarSize.Y, rotationSin * fallBarSize.Y);
-
-                    var fallBarRectangle = new Quad(
-                            Vector2Extensions.Transform(fallBarPosition - bottomOffset, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(fallBarPosition - bottomOffset + fallBarAmplitudeOffset, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(fallBarPosition + bottomOffset, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(fallBarPosition + bottomOffset + fallBarAmplitudeOffset, DrawInfo.Matrix)
-                        );
-
-                    DrawQuad(
-                        Texture,
-                        fallBarRectangle,
-                        DrawColourInfo.Colour,
-                        null,
-                        VertexBatch.AddAction,
-                        Vector2.Divide(inflation, fallBarSize.Yx));
-                }
+                DrawQuad(
+                    Texture,
+                    fallBarRectangle,
+                    DrawColourInfo.Colour,
+                    null,
+                    VertexBatch.AddAction,
+                    Vector2.Divide(inflation, fallBarSize.Yx));
             }
         }
     }

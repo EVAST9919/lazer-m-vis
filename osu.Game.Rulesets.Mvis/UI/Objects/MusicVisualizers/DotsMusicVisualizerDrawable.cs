@@ -24,42 +24,35 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             {
             }
 
-            protected override void Draw()
+            protected override void DrawBar(int index, float spacing, Vector2 inflation)
             {
-                Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
                 var dotSize = new Vector2((float)BarWidth);
+                float rotation = MathHelper.DegreesToRadians(index * spacing - 90);
+                float rotationCos = MathF.Cos(rotation);
+                float rotationSin = MathF.Sin(rotation);
 
-                float spacing = DegreeValue / AudioData.Count;
+                var scale = (AudioData[index] * 2 + Size.X) / Size.X;
+                var multiplier = 1f / (scale * 2);
 
-                for (int i = 0; i < AudioData.Count; i++)
-                {
-                    float rotation = MathHelper.DegreesToRadians(i * spacing - 90);
-                    float rotationCos = MathF.Cos(rotation);
-                    float rotationSin = MathF.Sin(rotation);
+                var dotPosition = new Vector2(rotationCos / 2 + multiplier, rotationSin / 2 + multiplier) * Size.X * scale;
 
-                    var scale = (AudioData[i] * 2 + Size.X) / Size.X;
-                    var multiplier = 1f / (scale * 2);
+                var bottomOffset = new Vector2(-rotationSin * dotSize.X / 2, rotationCos * dotSize.Y / 2);
+                var amplitudeOffset = new Vector2(rotationCos * dotSize.X, rotationSin * dotSize.Y);
 
-                    var dotPosition = new Vector2(rotationCos / 2 + multiplier, rotationSin / 2 + multiplier) * Size.X * scale;
+                var rectangle = new Quad(
+                        Vector2Extensions.Transform(dotPosition - bottomOffset, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(dotPosition - bottomOffset + amplitudeOffset, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(dotPosition + bottomOffset, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(dotPosition + bottomOffset + amplitudeOffset, DrawInfo.Matrix)
+                    );
 
-                    var bottomOffset = new Vector2(-rotationSin * dotSize.X / 2, rotationCos * dotSize.Y / 2);
-                    var amplitudeOffset = new Vector2(rotationCos * dotSize.X, rotationSin * dotSize.Y);
-
-                    var rectangle = new Quad(
-                            Vector2Extensions.Transform(dotPosition - bottomOffset, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(dotPosition - bottomOffset + amplitudeOffset, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(dotPosition + bottomOffset, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(dotPosition + bottomOffset + amplitudeOffset, DrawInfo.Matrix)
-                        );
-
-                    DrawQuad(
-                        Texture,
-                        rectangle,
-                        DrawColourInfo.Colour,
-                        null,
-                        VertexBatch.AddAction,
-                        Vector2.Divide(inflation, dotSize.Yx));
-                }
+                DrawQuad(
+                    Texture,
+                    rectangle,
+                    DrawColourInfo.Colour,
+                    null,
+                    VertexBatch.AddAction,
+                    Vector2.Divide(inflation, dotSize.Yx));
             }
         }
     }

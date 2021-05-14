@@ -155,6 +155,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 AudioData.AddRange(Source.smoothAudioData);
             }
 
+            protected abstract float Spacing { get; }
+
             public override void Draw(Action<TexturedVertex2D> vertexAction)
             {
                 base.Draw(vertexAction);
@@ -162,12 +164,18 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 if (AudioData.Any())
                 {
                     shader.Bind();
-                    Draw();
+
+                    Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
+                    var spacing = Spacing;
+
+                    for (int i = 0; i < AudioData.Count; i++)
+                        DrawBar(i, spacing, inflation);
+
                     shader.Unbind();
                 }
             }
 
-            protected abstract void Draw();
+            protected abstract void DrawBar(int index, float spacing, Vector2 inflation);
 
             protected override void Dispose(bool isDisposing)
             {

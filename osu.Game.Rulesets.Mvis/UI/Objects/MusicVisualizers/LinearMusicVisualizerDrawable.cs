@@ -20,32 +20,27 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             {
             }
 
-            protected override void Draw()
+            protected override float Spacing => Size.X / AudioData.Count;
+
+            protected override void DrawBar(int index, float spacing, Vector2 inflation)
             {
-                Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
+                var barPosition = new Vector2(index * spacing, Size.Y);
+                var barSize = new Vector2((float)BarWidth, 2 + AudioData[index]);
 
-                float spacing = Size.X / AudioData.Count;
+                var rectangle = new Quad(
+                        Vector2Extensions.Transform(barPosition, DrawInfo.Matrix),
+                        Vector2Extensions.Transform(barPosition + new Vector2(0, -barSize.Y), DrawInfo.Matrix),
+                        Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, 0), DrawInfo.Matrix),
+                        Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, -barSize.Y), DrawInfo.Matrix)
+                    );
 
-                for (int i = 0; i < AudioData.Count; i++)
-                {
-                    var barPosition = new Vector2(i * spacing, Size.Y);
-                    var barSize = new Vector2((float)BarWidth, 2 + AudioData[i]);
-
-                    var rectangle = new Quad(
-                            Vector2Extensions.Transform(barPosition, DrawInfo.Matrix),
-                            Vector2Extensions.Transform(barPosition + new Vector2(0, -barSize.Y), DrawInfo.Matrix),
-                            Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, 0), DrawInfo.Matrix),
-                            Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, -barSize.Y), DrawInfo.Matrix)
-                        );
-
-                    DrawQuad(
-                        Texture,
-                        rectangle,
-                        DrawColourInfo.Colour,
-                        null,
-                        VertexBatch.AddAction,
-                        Vector2.Divide(inflation, barSize.Yx));
-                }
+                DrawQuad(
+                    Texture,
+                    rectangle,
+                    DrawColourInfo.Colour,
+                    null,
+                    VertexBatch.AddAction,
+                    Vector2.Divide(inflation, barSize.Yx));
             }
         }
     }

@@ -28,6 +28,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 base.ApplyState();
                 DegreeValue = Source.DegreeValue.Value;
             }
+
+            protected override float Spacing => DegreeValue / AudioData.Count;
         }
     }
 }
