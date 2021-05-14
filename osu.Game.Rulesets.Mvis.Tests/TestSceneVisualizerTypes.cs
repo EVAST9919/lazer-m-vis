@@ -53,7 +53,18 @@ namespace osu.Game.Rulesets.Mvis.Tests
                 RelativeSizeAxes = Axes.Both;
                 Children = new Drawable[]
                 {
-                    new LinearMusicVisualizerDrawable(),
+                    new LinearMusicVisualizerDrawable
+                    {
+                        BarAnchor = { Value = BarAnchor.Centre }
+                    },
+                    new LinearMusicVisualizerDrawable
+                    {
+                        BarAnchor = { Value = BarAnchor.Top }
+                    },
+                    new LinearMusicVisualizerDrawable
+                    {
+                        BarAnchor = { Value = BarAnchor.Bottom }
+                    },
                     new BasicMusicVisualizerDrawable
                     {
                         Anchor = Anchor.Centre,

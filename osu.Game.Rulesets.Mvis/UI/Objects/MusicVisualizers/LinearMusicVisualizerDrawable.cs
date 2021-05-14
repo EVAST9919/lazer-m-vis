@@ -1,4 +1,5 @@
-﻿using osu.Framework.Graphics;
+﻿using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Primitives;
 using osuTK;
 
@@ -6,6 +7,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
     public class LinearMusicVisualizerDrawable : MusicVisualizerDrawable
     {
+        public readonly Bindable<BarAnchor> BarAnchor = new Bindable<BarAnchor>(MusicVisualizers.BarAnchor.Centre);
+
         public LinearMusicVisualizerDrawable()
         {
             RelativeSizeAxes = Axes.Both;
@@ -15,33 +18,98 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
         private class LinearVisualizerDrawNode : VisualizerDrawNode
         {
+            public new LinearMusicVisualizerDrawable Source => (LinearMusicVisualizerDrawable)base.Source;
+
+            private BarAnchor origin;
+
             public LinearVisualizerDrawNode(LinearMusicVisualizerDrawable source)
                 : base(source)
             {
             }
 
+            public override void ApplyState()
+            {
+                base.ApplyState();
+                origin = Source.BarAnchor.Value;
+            }
+
             protected override float Spacing => Size.X / AudioData.Count;
+
+            private float barY;
+
+            protected override void PreCompute()
+            {
+                base.PreCompute();
+                barY = getBarPositionY();
+            }
 
             protected override void DrawBar(int index, float spacing, Vector2 inflation)
             {
-                var barPosition = new Vector2(index * spacing, Size.Y);
+                var barPosition = new Vector2(index * spacing, barY);
                 var barSize = new Vector2((float)BarWidth, 2 + AudioData[index]);
-
-                var rectangle = new Quad(
-                        Vector2Extensions.Transform(barPosition, DrawInfo.Matrix),
-                        Vector2Extensions.Transform(barPosition + new Vector2(0, -barSize.Y), DrawInfo.Matrix),
-                        Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, 0), DrawInfo.Matrix),
-                        Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, -barSize.Y), DrawInfo.Matrix)
-                    );
 
                 DrawQuad(
                     Texture,
-                    rectangle,
+                    getQuad(barPosition, barSize),
                     DrawColourInfo.Colour,
                     null,
                     VertexBatch.AddAction,
-                    Vector2.Divide(inflation, barSize.Yx));
+                    new Vector2(1f / barSize.Y, 1f / barSize.X));
+            }
+
+            private float getBarPositionY()
+            {
+                switch (origin)
+                {
+                    default:
+                    case MusicVisualizers.BarAnchor.Bottom:
+                        return Size.Y;
+
+                    case MusicVisualizers.BarAnchor.Centre:
+                        return Size.Y / 2;
+
+                    case MusicVisualizers.BarAnchor.Top:
+                        return 0;
+                }
+            }
+
+            private Quad getQuad(Vector2 barPosition, Vector2 barSize)
+            {
+                switch (origin)
+                {
+                    default:
+                    case MusicVisualizers.BarAnchor.Bottom:
+                        return new Quad(
+                            Vector2Extensions.Transform(barPosition, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + new Vector2(0, -barSize.Y), DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, 0), DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, -barSize.Y), DrawInfo.Matrix)
+                            );
+
+                    case MusicVisualizers.BarAnchor.Centre:
+                        return new Quad(
+                            Vector2Extensions.Transform(barPosition + new Vector2(0, -barSize.Y / 2), DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + new Vector2(0, barSize.Y / 2), DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, -barSize.Y / 2), DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, barSize.Y / 2), DrawInfo.Matrix)
+                            );
+
+                    case MusicVisualizers.BarAnchor.Top:
+                        return new Quad(
+                            Vector2Extensions.Transform(barPosition, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + new Vector2(0, barSize.Y), DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, 0), DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + new Vector2(barSize.X, barSize.Y), DrawInfo.Matrix)
+                            );
+                }
             }
         }
+    }
+
+    public enum BarAnchor
+    {
+        Top,
+        Centre,
+        Bottom
     }
 }

@@ -24,9 +24,16 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             {
             }
 
+            private Vector2 dotSize;
+
+            protected override void PreCompute()
+            {
+                base.PreCompute();
+                dotSize = new Vector2((float)BarWidth);
+            }
+
             protected override void DrawBar(int index, float spacing, Vector2 inflation)
             {
-                var dotSize = new Vector2((float)BarWidth);
                 float rotation = MathHelper.DegreesToRadians(index * spacing - 90);
                 float rotationCos = MathF.Cos(rotation);
                 float rotationSin = MathF.Sin(rotation);

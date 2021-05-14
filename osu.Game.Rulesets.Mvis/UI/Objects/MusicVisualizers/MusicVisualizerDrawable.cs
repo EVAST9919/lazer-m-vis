@@ -156,6 +156,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             }
 
             protected abstract float Spacing { get; }
+            protected virtual Vector2 Inflation => Vector2.One;
 
             public override void Draw(Action<TexturedVertex2D> vertexAction)
             {
@@ -165,14 +166,19 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 {
                     shader.Bind();
 
-                    Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
+                    Vector2 inflation = Inflation;
                     var spacing = Spacing;
+                    PreCompute();
 
                     for (int i = 0; i < AudioData.Count; i++)
                         DrawBar(i, spacing, inflation);
 
                     shader.Unbind();
                 }
+            }
+
+            protected virtual void PreCompute()
+            {
             }
 
             protected abstract void DrawBar(int index, float spacing, Vector2 inflation);

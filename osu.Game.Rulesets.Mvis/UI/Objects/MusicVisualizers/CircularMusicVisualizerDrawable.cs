@@ -1,4 +1,5 @@
 ﻿using osu.Framework.Bindables;
+using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
@@ -30,6 +31,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             }
 
             protected override float Spacing => DegreeValue / AudioData.Count;
+
+            protected override Vector2 Inflation => DrawInfo.MatrixInverse.ExtractScale().Xy;
         }
     }
 }
