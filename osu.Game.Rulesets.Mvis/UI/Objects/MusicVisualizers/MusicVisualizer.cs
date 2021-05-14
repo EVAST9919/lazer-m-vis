@@ -76,7 +76,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             rotation.TriggerChange();
         }
 
-        private MusicVisualizerDrawable createVisualizer()
+        private CircularMusicVisualizerDrawable createVisualizer()
         {
             switch (type.Value)
             {

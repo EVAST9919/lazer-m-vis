@@ -7,7 +7,7 @@ using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
-    public class DotsMusicVisualizerDrawable : MusicVisualizerDrawable
+    public class DotsMusicVisualizerDrawable : CircularMusicVisualizerDrawable
     {
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
@@ -15,53 +15,50 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             Texture = textures.Get("particle");
         }
 
-        protected override VisualizerDrawNode CreateVisualizerDrawNode() => new DotsVisualizerDrawNode(this);
+        protected override CircularVisualizerDrawNode CreateCircularVisualizerDrawNode() => new DotsVisualizerDrawNode(this);
 
-        private class DotsVisualizerDrawNode : VisualizerDrawNode<DotsMusicVisualizerDrawable>
+        private class DotsVisualizerDrawNode : CircularVisualizerDrawNode
         {
             public DotsVisualizerDrawNode(DotsMusicVisualizerDrawable source)
                 : base(source)
             {
             }
 
-            protected override void DrawNode()
+            protected override void Draw()
             {
                 Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
                 var dotSize = new Vector2((float)BarWidth);
 
-                if (AudioData != null)
+                float spacing = DegreeValue / AudioData.Count;
+
+                for (int i = 0; i < AudioData.Count; i++)
                 {
-                    float spacing = DegreeValue / AudioData.Count;
+                    float rotation = MathHelper.DegreesToRadians(i * spacing - 90);
+                    float rotationCos = MathF.Cos(rotation);
+                    float rotationSin = MathF.Sin(rotation);
 
-                    for (int i = 0; i < AudioData.Count; i++)
-                    {
-                        float rotation = MathHelper.DegreesToRadians(i * spacing - 90);
-                        float rotationCos = MathF.Cos(rotation);
-                        float rotationSin = MathF.Sin(rotation);
+                    var scale = (AudioData[i] * 2 + Size.X) / Size.X;
+                    var multiplier = 1f / (scale * 2);
 
-                        var scale = (AudioData[i] * 2 + Size) / Size;
-                        var multiplier = 1f / (scale * 2);
+                    var dotPosition = new Vector2(rotationCos / 2 + multiplier, rotationSin / 2 + multiplier) * Size.X * scale;
 
-                        var dotPosition = new Vector2(rotationCos / 2 + multiplier, rotationSin / 2 + multiplier) * Size * scale;
+                    var bottomOffset = new Vector2(-rotationSin * dotSize.X / 2, rotationCos * dotSize.Y / 2);
+                    var amplitudeOffset = new Vector2(rotationCos * dotSize.X, rotationSin * dotSize.Y);
 
-                        var bottomOffset = new Vector2(-rotationSin * dotSize.X / 2, rotationCos * dotSize.Y / 2);
-                        var amplitudeOffset = new Vector2(rotationCos * dotSize.X, rotationSin * dotSize.Y);
+                    var rectangle = new Quad(
+                            Vector2Extensions.Transform(dotPosition - bottomOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(dotPosition - bottomOffset + amplitudeOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(dotPosition + bottomOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(dotPosition + bottomOffset + amplitudeOffset, DrawInfo.Matrix)
+                        );
 
-                        var rectangle = new Quad(
-                                Vector2Extensions.Transform(dotPosition - bottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(dotPosition - bottomOffset + amplitudeOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(dotPosition + bottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(dotPosition + bottomOffset + amplitudeOffset, DrawInfo.Matrix)
-                            );
-
-                        DrawQuad(
-                            Texture,
-                            rectangle,
-                            DrawColourInfo.Colour,
-                            null,
-                            VertexBatch.AddAction,
-                            Vector2.Divide(inflation, dotSize.Yx));
-                    }
+                    DrawQuad(
+                        Texture,
+                        rectangle,
+                        DrawColourInfo.Colour,
+                        null,
+                        VertexBatch.AddAction,
+                        Vector2.Divide(inflation, dotSize.Yx));
                 }
             }
         }

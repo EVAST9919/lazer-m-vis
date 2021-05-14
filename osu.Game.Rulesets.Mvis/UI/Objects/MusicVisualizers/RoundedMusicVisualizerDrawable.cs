@@ -7,7 +7,7 @@ using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
-    public class RoundedMusicVisualizerDrawable : MusicVisualizerDrawable
+    public class RoundedMusicVisualizerDrawable : CircularMusicVisualizerDrawable
     {
         private Texture circleTexture;
 
@@ -17,10 +17,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             circleTexture = textures.Get("particle");
         }
 
-        protected override VisualizerDrawNode CreateVisualizerDrawNode() => new RoundedVisualizerDrawNode(this);
+        protected override CircularVisualizerDrawNode CreateCircularVisualizerDrawNode() => new RoundedVisualizerDrawNode(this);
 
-        private class RoundedVisualizerDrawNode : VisualizerDrawNode<RoundedMusicVisualizerDrawable>
+        private class RoundedVisualizerDrawNode : CircularVisualizerDrawNode
         {
+            protected new RoundedMusicVisualizerDrawable Source => (RoundedMusicVisualizerDrawable)base.Source;
+
             private Texture circleTexture;
 
             public RoundedVisualizerDrawNode(RoundedMusicVisualizerDrawable source)
@@ -34,90 +36,87 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 circleTexture = Source.circleTexture;
             }
 
-            protected override void DrawNode()
+            protected override void Draw()
             {
                 Vector2 inflation = DrawInfo.MatrixInverse.ExtractScale().Xy;
                 var dotSize = new Vector2((float)BarWidth);
 
-                if (AudioData != null)
+                float spacing = DegreeValue / AudioData.Count;
+
+                for (int i = 0; i < AudioData.Count; i++)
                 {
-                    float spacing = DegreeValue / AudioData.Count;
+                    float rotation = MathHelper.DegreesToRadians(i * spacing - 90);
+                    float rotationCos = MathF.Cos(rotation);
+                    float rotationSin = MathF.Sin(rotation);
 
-                    for (int i = 0; i < AudioData.Count; i++)
-                    {
-                        float rotation = MathHelper.DegreesToRadians(i * spacing - 90);
-                        float rotationCos = MathF.Cos(rotation);
-                        float rotationSin = MathF.Sin(rotation);
+                    // Bottom Dot
+                    var bottomDotPosition = new Vector2(rotationCos / 2 + 0.5f, rotationSin / 2 + 0.5f) * Size.X;
 
-                        // Bottom Dot
-                        var bottomDotPosition = new Vector2(rotationCos / 2 + 0.5f, rotationSin / 2 + 0.5f) * Size;
+                    var dotBottomOffset = new Vector2(-rotationSin * dotSize.X / 2, rotationCos * dotSize.Y / 2);
+                    var dotAmplitudeOffset = new Vector2(rotationCos * dotSize.X, rotationSin * dotSize.Y);
 
-                        var dotBottomOffset = new Vector2(-rotationSin * dotSize.X / 2, rotationCos * dotSize.Y / 2);
-                        var dotAmplitudeOffset = new Vector2(rotationCos * dotSize.X, rotationSin * dotSize.Y);
+                    var bottomDotQuad = new Quad(
+                            Vector2Extensions.Transform(bottomDotPosition - dotBottomOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(bottomDotPosition - dotBottomOffset + dotAmplitudeOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(bottomDotPosition + dotBottomOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(bottomDotPosition + dotBottomOffset + dotAmplitudeOffset, DrawInfo.Matrix)
+                        );
 
-                        var bottomDotQuad = new Quad(
-                                Vector2Extensions.Transform(bottomDotPosition - dotBottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(bottomDotPosition - dotBottomOffset + dotAmplitudeOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(bottomDotPosition + dotBottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(bottomDotPosition + dotBottomOffset + dotAmplitudeOffset, DrawInfo.Matrix)
-                            );
-
-                        DrawQuad(
-                            circleTexture,
-                            bottomDotQuad,
-                            DrawColourInfo.Colour,
-                            null,
-                            VertexBatch.AddAction,
-                            Vector2.Divide(inflation, dotSize.Yx));
+                    DrawQuad(
+                        circleTexture,
+                        bottomDotQuad,
+                        DrawColourInfo.Colour,
+                        null,
+                        VertexBatch.AddAction,
+                        Vector2.Divide(inflation, dotSize.Yx));
 
 
-                        // Bar
-                        var barPositionScale = (dotSize.X + Size) / Size;
-                        var barPositionMultiplier = 1f / (barPositionScale * 2);
+                    // Bar
+                    var barPositionScale = (dotSize.X + Size.X) / Size.X;
+                    var barPositionMultiplier = 1f / (barPositionScale * 2);
 
-                        var barPosition = new Vector2(rotationCos / 2 + barPositionMultiplier, rotationSin / 2 + barPositionMultiplier) * Size * barPositionScale;
-                        var barSize = new Vector2((float)BarWidth, AudioData[i]);
+                    var barPosition = new Vector2(rotationCos / 2 + barPositionMultiplier, rotationSin / 2 + barPositionMultiplier) * Size.X * barPositionScale;
+                    var barSize = new Vector2((float)BarWidth, AudioData[i]);
 
-                        var bottomOffset = new Vector2(-rotationSin * barSize.X / 2, rotationCos * barSize.X / 2);
-                        var amplitudeOffset = new Vector2(rotationCos * barSize.Y, rotationSin * barSize.Y);
+                    var bottomOffset = new Vector2(-rotationSin * barSize.X / 2, rotationCos * barSize.X / 2);
+                    var amplitudeOffset = new Vector2(rotationCos * barSize.Y, rotationSin * barSize.Y);
 
-                        var rectangle = new Quad(
-                                Vector2Extensions.Transform(barPosition - bottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(barPosition - bottomOffset + amplitudeOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(barPosition + bottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(barPosition + bottomOffset + amplitudeOffset, DrawInfo.Matrix)
-                            );
+                    var rectangle = new Quad(
+                            Vector2Extensions.Transform(barPosition - bottomOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition - bottomOffset + amplitudeOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + bottomOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(barPosition + bottomOffset + amplitudeOffset, DrawInfo.Matrix)
+                        );
 
-                        DrawQuad(
-                            Texture,
-                            rectangle,
-                            DrawColourInfo.Colour,
-                            null,
-                            VertexBatch.AddAction,
-                            Vector2.Divide(inflation, barSize.Yx));
+                    DrawQuad(
+                        Texture,
+                        rectangle,
+                        DrawColourInfo.Colour,
+                        null,
+                        VertexBatch.AddAction,
+                        Vector2.Divide(inflation, barSize.Yx));
 
 
-                        // Top Dot
-                        var topDotScale = (barSize.Y * 2 + Size) / Size;
-                        var topDotPositionMultiplier = 1f / (topDotScale * 2);
+                    // Top Dot
+                    var topDotScale = (barSize.Y * 2 + Size.X) / Size.X;
+                    var topDotPositionMultiplier = 1f / (topDotScale * 2);
 
-                        var topDotPosition = new Vector2(rotationCos / 2 + topDotPositionMultiplier, rotationSin / 2 + topDotPositionMultiplier) * Size * topDotScale;
+                    var topDotPosition = new Vector2(rotationCos / 2 + topDotPositionMultiplier, rotationSin / 2 + topDotPositionMultiplier) * Size.X * topDotScale;
 
-                        var topDotQuad = new Quad(
-                                Vector2Extensions.Transform(topDotPosition - dotBottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(topDotPosition - dotBottomOffset + dotAmplitudeOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(topDotPosition + dotBottomOffset, DrawInfo.Matrix),
-                                Vector2Extensions.Transform(topDotPosition + dotBottomOffset + dotAmplitudeOffset, DrawInfo.Matrix)
-                            );
+                    var topDotQuad = new Quad(
+                            Vector2Extensions.Transform(topDotPosition - dotBottomOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(topDotPosition - dotBottomOffset + dotAmplitudeOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(topDotPosition + dotBottomOffset, DrawInfo.Matrix),
+                            Vector2Extensions.Transform(topDotPosition + dotBottomOffset + dotAmplitudeOffset, DrawInfo.Matrix)
+                        );
 
-                        DrawQuad(
-                            circleTexture,
-                            topDotQuad,
-                            DrawColourInfo.Colour,
-                            null,
-                            VertexBatch.AddAction,
-                            Vector2.Divide(inflation, dotSize.Yx));
-                    }
+                    DrawQuad(
+                        circleTexture,
+                        topDotQuad,
+                        DrawColourInfo.Colour,
+                        null,
+                        VertexBatch.AddAction,
+                        Vector2.Divide(inflation, dotSize.Yx));
                 }
             }
         }

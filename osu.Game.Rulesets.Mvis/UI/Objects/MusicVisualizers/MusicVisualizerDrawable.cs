@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -8,6 +9,7 @@ using osu.Framework.Graphics.OpenGL.Vertices;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Rulesets.Mvis.Extensions;
+using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
@@ -16,11 +18,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         // Total amplitude count is 256, however in most cases some of them are empty, let's not use them.
         private const int used_amplitude_count = 200;
 
-        public readonly Bindable<float> DegreeValue = new Bindable<float>();
-        public readonly Bindable<double> BarWidth = new Bindable<double>();
-        public readonly Bindable<int> BarCount = new Bindable<int>();
-        public readonly Bindable<int> Decay = new Bindable<int>();
-        public readonly Bindable<int> HeightMultiplier = new Bindable<int>();
+        public readonly Bindable<double> BarWidth = new Bindable<double>(5);
+        public readonly Bindable<int> BarCount = new Bindable<int>(100);
+        public readonly Bindable<int> Decay = new Bindable<int>(200);
+        public readonly Bindable<int> HeightMultiplier = new Bindable<int>(400);
         public readonly Bindable<bool> Reversed = new Bindable<bool>();
 
         public Texture Texture { get; protected set; }
@@ -101,9 +102,11 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             smoothAudioData[reversed ? barCount - index - 1 : index] = currentRawAudioData[index] * HeightMultiplier.Value;
         }
 
+        protected virtual float SmoothMultiplier => 1f;
+
         protected virtual void PostUpdate()
         {
-            smoothAudioData.Smooth(Math.Max((int)Math.Round(barCount * 0.003f * 360f / DegreeValue.Value), 1));
+            smoothAudioData.Smooth(Math.Max((int)Math.Round(barCount * 0.003f * SmoothMultiplier), 1));
         }
 
         private float[] getConvertedAmplitudes(float[] amplitudes)
@@ -122,21 +125,19 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
         protected abstract VisualizerDrawNode CreateVisualizerDrawNode();
 
-        protected abstract class VisualizerDrawNode<T> : VisualizerDrawNode
-            where T : MusicVisualizerDrawable
+        protected abstract class VisualizerDrawNode : DrawNode
         {
-            protected new T Source => (T)base.Source;
+            protected new MusicVisualizerDrawable Source => (MusicVisualizerDrawable)base.Source;
+
+            protected readonly QuadBatch<TexturedVertex2D> VertexBatch = new QuadBatch<TexturedVertex2D>(200, 5);
+            protected readonly List<float> AudioData = new List<float>();
 
             private IShader shader;
             protected Texture Texture;
-            protected float Size;
-            protected float DegreeValue;
+            protected Vector2 Size;
             protected double BarWidth;
 
-            protected readonly List<float> AudioData = new List<float>();
-            protected readonly QuadBatch<TexturedVertex2D> VertexBatch = new QuadBatch<TexturedVertex2D>(200, 5);
-
-            public VisualizerDrawNode(T source)
+            public VisualizerDrawNode(MusicVisualizerDrawable source)
                 : base(source)
             {
             }
@@ -147,8 +148,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
                 shader = Source.shader;
                 Texture = Source.Texture;
-                Size = Source.DrawSize.X;
-                DegreeValue = Source.DegreeValue.Value;
+                Size = Source.DrawSize;
                 BarWidth = Source.BarWidth.Value;
 
                 AudioData.Clear();
@@ -159,25 +159,20 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             {
                 base.Draw(vertexAction);
 
-                shader.Bind();
-                DrawNode();
-                shader.Unbind();
+                if (AudioData.Any())
+                {
+                    shader.Bind();
+                    Draw();
+                    shader.Unbind();
+                }
             }
 
-            protected abstract void DrawNode();
+            protected abstract void Draw();
 
             protected override void Dispose(bool isDisposing)
             {
                 base.Dispose(isDisposing);
                 VertexBatch.Dispose();
-            }
-        }
-
-        protected abstract class VisualizerDrawNode : DrawNode
-        {
-            public VisualizerDrawNode(MusicVisualizerDrawable source)
-                : base(source)
-            {
             }
         }
     }
