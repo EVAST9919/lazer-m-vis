@@ -22,8 +22,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private readonly Bindable<int> blue = new Bindable<int>(0);
         private readonly Bindable<int> radius = new Bindable<int>(350);
 
-        private CircularProgress progressGlow;
-        private GlowEffect glow;
+        private CircularProgress progress;
         private MusicVisualizer visualizer;
 
         [BackgroundDependencyLoader]
@@ -40,15 +39,14 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                 },
-                (progressGlow = new CircularProgress
+                (progress = new CircularProgress
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     InnerRadius = 0.02f,
-                }).WithEffect(glow = new GlowEffect
+                }).WithEffect(new GlowEffect
                 {
-                    Colour = Color4.White,
                     Strength = 5,
                     PadExtent = true
                 }),
@@ -79,7 +77,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private void updateColour()
         {
-            progressGlow.Colour = glow.Colour = visualizer.Colour =
+            progress.Colour = visualizer.Colour =
                 useCustomColour.Value ? new Color4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1) : Color4.White;
         }
 
@@ -88,7 +86,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             base.Update();
 
             var track = Beatmap.Value?.Track;
-            progressGlow.Current.Value = (track == null || track.Length == 0) ? 0 : (track.CurrentTime / track.Length);
+            progress.Current.Value = (track == null || track.Length == 0) ? 0 : (track.CurrentTime / track.Length);
         }
     }
 }
