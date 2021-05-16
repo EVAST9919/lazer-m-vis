@@ -38,6 +38,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
             AddStep("Toggle visibility", nowPlayingOverlay.ToggleVisibility);
             AddSliderStep("Bar count", 0, 3500, 3500, count => visuals.ForEach(v => ((MusicVisualizerDrawable)v).BarCount.Value = count));
             AddSliderStep("Bar width", 1f, 50f, 1f, width => visuals.ForEach(v => ((MusicVisualizerDrawable)v).BarWidth.Value = width));
+            AddSliderStep("Decay", 1, 500, 200, decay => visuals.ForEach(v => ((MusicVisualizerDrawable)v).Decay.Value = decay));
             AddSliderStep("Degree value", 0f, 360f, 360f, degree => visuals.ForEach(v =>
             {
                 if (v is CircularMusicVisualizerDrawable c)
@@ -55,21 +56,31 @@ namespace osu.Game.Rulesets.Mvis.Tests
                 {
                     new LinearMusicVisualizerDrawable
                     {
-                        BarAnchor = { Value = BarAnchor.Centre }
-                    },
-                    new LinearMusicVisualizerDrawable
-                    {
-                        BarAnchor = { Value = BarAnchor.Top }
-                    },
-                    new LinearMusicVisualizerDrawable
-                    {
-                        BarAnchor = { Value = BarAnchor.Bottom }
+                        BarAnchor = { Value = BarAnchor.Centre },
+                        Y = 200
                     },
                     new BasicMusicVisualizerDrawable
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Size = new Vector2(200)
+                        Size = new Vector2(200),
+                        Y = -50
+                    },
+                    new FallMusicVisualizerDrawable
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Size = new Vector2(200),
+                        X = -300,
+                        Y = -50
+                    },
+                    new DotsMusicVisualizerDrawable
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Size = new Vector2(200),
+                        X = 300,
+                        Y = -50
                     }
                 };
             }
