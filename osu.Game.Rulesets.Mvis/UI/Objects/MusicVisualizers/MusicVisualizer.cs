@@ -4,6 +4,7 @@ using osu.Framework.Bindables;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Framework.Allocation;
 using System;
+using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 {
@@ -24,8 +25,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         [BackgroundDependencyLoader]
         private void load()
         {
-            Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
+            Size = new Vector2(348);
 
             config?.BindWith(MvisRulesetSetting.VisualizerAmount, visuals);
             config?.BindWith(MvisRulesetSetting.BarWidth, barWidth);

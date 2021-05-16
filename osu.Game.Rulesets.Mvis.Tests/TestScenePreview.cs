@@ -2,6 +2,7 @@
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.Mvis.UI.Objects;
+using osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers;
 using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.Mvis.Tests
@@ -22,6 +23,10 @@ namespace osu.Game.Rulesets.Mvis.Tests
                     Colour = Color4.Black
                 },
                 new Particles(),
+                new MusicVisualizer
+                {
+                    Anchor = Anchor.Centre
+                },
                 new BeatmapLogo
                 {
                     Anchor = Anchor.Centre

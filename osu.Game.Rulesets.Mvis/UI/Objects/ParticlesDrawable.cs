@@ -11,7 +11,6 @@ using osu.Framework.Utils;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Rulesets.Mvis.Extensions;
 using osuTK;
-using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
@@ -30,10 +29,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
         private MvisRulesetConfigManager config { get; set; }
 
         private readonly Bindable<int> count = new Bindable<int>(1000);
-        private readonly Bindable<bool> useCustomColour = new Bindable<bool>();
-        private readonly Bindable<int> red = new Bindable<int>(0);
-        private readonly Bindable<int> green = new Bindable<int>(0);
-        private readonly Bindable<int> blue = new Bindable<int>(0);
 
         private readonly List<Particle> parts = new List<Particle>();
 
@@ -44,10 +39,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             Texture = textures.Get("particle");
 
             config?.BindWith(MvisRulesetSetting.ParticlesCount, count);
-            config?.BindWith(MvisRulesetSetting.Red, red);
-            config?.BindWith(MvisRulesetSetting.Green, green);
-            config?.BindWith(MvisRulesetSetting.Blue, blue);
-            config?.BindWith(MvisRulesetSetting.UseCustomColour, useCustomColour);
         }
 
         protected override void LoadComplete()
@@ -55,11 +46,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             base.LoadComplete();
 
             count.BindValueChanged(c => Restart(c.NewValue), true);
-
-            red.BindValueChanged(_ => updateColour());
-            green.BindValueChanged(_ => updateColour());
-            blue.BindValueChanged(_ => updateColour());
-            useCustomColour.BindValueChanged(_ => updateColour(), true);
         }
 
         public void Restart(int particleCount)
@@ -82,11 +68,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             }
 
             Direction.Value = newDirection;
-        }
-
-        private void updateColour()
-        {
-            Colour = useCustomColour.Value ? new Color4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1) : Color4.White;
         }
 
         protected override void Update()
