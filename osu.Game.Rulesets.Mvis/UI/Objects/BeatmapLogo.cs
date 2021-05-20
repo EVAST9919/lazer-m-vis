@@ -1,4 +1,5 @@
 ﻿using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Utils;
@@ -11,18 +12,21 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 {
     public class BeatmapLogo : CurrentBeatmapProvider
     {
+        private const float base_size = 350;
+
         public new Color4 Colour
         {
             get => progress.Colour;
             set => progress.Colour = value;
         }
 
+        public new Bindable<float> Size = new Bindable<float>(base_size);
+
         private Progress progress;
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            Size = new Vector2(350);
             Origin = Anchor.Centre;
 
             InternalChildren = new Drawable[]
@@ -43,6 +47,17 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
             };
         }
 
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            Size.BindValueChanged(s =>
+            {
+                base.Size = new Vector2(s.NewValue);
+                progress.UpdateSize(s.NewValue);
+            }, true);
+        }
+
         protected override void Update()
         {
             base.Update();
@@ -53,30 +68,28 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects
 
         private class Progress : SmoothCircularProgress
         {
-            private static readonly Vector2 sigma = new Vector2(5);
+            private static readonly float sigma = 5;
 
             private BufferedContainer bufferedContainer => (BufferedContainer)InternalChild;
 
             public new Color4 Colour
             {
                 get => bufferedContainer.Colour;
-                set
-                {
-                    bufferedContainer.Colour = value;
-                    bufferedContainer.EffectColour = bufferedContainer.Colour.MultiplyAlpha(4);
-                }
+                set => bufferedContainer.Colour = bufferedContainer.EffectColour = value;
             }
 
             public Progress()
             {
-                bufferedContainer.BlurSigma = sigma;
                 bufferedContainer.DrawOriginal = true;
-                bufferedContainer.EffectBlending = BlendingParameters.Additive;
-                bufferedContainer.Padding = new MarginPadding
-                {
-                    Horizontal = Blur.KernelSize(sigma.X),
-                    Vertical = Blur.KernelSize(sigma.Y),
-                };
+            }
+
+            public void UpdateSize(float size)
+            {
+                var newSigma = sigma * size / base_size;
+                var padding = Blur.KernelSize(newSigma);
+
+                bufferedContainer.BlurSigma = new Vector2(newSigma);
+                bufferedContainer.Padding = new MarginPadding(padding);
             }
         }
     }

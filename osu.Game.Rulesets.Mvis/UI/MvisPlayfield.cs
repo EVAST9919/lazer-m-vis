@@ -68,7 +68,7 @@ namespace osu.Game.Rulesets.Mvis.UI
 
             radius.BindValueChanged(r =>
             {
-                logo.Size = new Vector2(r.NewValue);
+                logo.Size.Value = r.NewValue;
                 visualizer.Size = new Vector2(r.NewValue - 2);
             }, true);
 
