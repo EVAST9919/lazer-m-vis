@@ -1,9 +1,14 @@
-﻿using osu.Framework.Allocation;
+﻿using System.Linq;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Testing;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Mvis.Configuration;
+using osu.Game.Screens;
+using osu.Game.Screens.Play;
 using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI
@@ -11,6 +16,9 @@ namespace osu.Game.Rulesets.Mvis.UI
     public class MvisSettingsSubsection : RulesetSettingsSubsection
     {
         protected override string Header => "mvis";
+
+        [Resolved]
+        private OsuGame game { get; set; }
 
         public MvisSettingsSubsection(Ruleset ruleset)
             : base(ruleset)
@@ -27,6 +35,26 @@ namespace osu.Game.Rulesets.Mvis.UI
 
             Children = new Drawable[]
             {
+                new SettingsButton
+                {
+                    Text = "Open Main Screen",
+                    Action = () =>
+                    {
+                        try
+                        {
+                            var screenStack = getScreenStack(game);
+                            if (screenStack.CurrentScreen is Player)
+                                return;
+
+                            var settingOverlay = getSettingsOverlay(game);
+                            screenStack?.Push(new VisualizerScreen());
+                            settingOverlay?.Hide();
+                        }
+                        catch
+                        {
+                        }
+                    }
+                },
                 new SettingsCheckbox
                 {
                     LabelText = "Show particles",
@@ -167,6 +195,10 @@ namespace osu.Game.Rulesets.Mvis.UI
 
             resizableContainer.FinishTransforms();
         }
+
+        private static OsuScreenStack getScreenStack(OsuGame game) => game.ChildrenOfType<OsuScreenStack>().FirstOrDefault();
+
+        private static SettingsOverlay getSettingsOverlay(OsuGame game) => game.ChildrenOfType<SettingsOverlay>().FirstOrDefault();
 
         private class PositionSlider : OsuSliderBar<float>
         {
