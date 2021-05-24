@@ -5,9 +5,11 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Testing;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Notifications;
 using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Screens;
+using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play;
 using osuTK;
 
@@ -19,6 +21,9 @@ namespace osu.Game.Rulesets.Mvis.UI
 
         [Resolved]
         private OsuGame game { get; set; }
+
+        [Resolved]
+        private NotificationOverlay notifications { get; set; }
 
         public MvisSettingsSubsection(Ruleset ruleset)
             : base(ruleset)
@@ -43,8 +48,14 @@ namespace osu.Game.Rulesets.Mvis.UI
                         try
                         {
                             var screenStack = getScreenStack(game);
-                            if (screenStack.CurrentScreen is Player)
+                            if (!(screenStack.CurrentScreen is MainMenu))
+                            {
+                                notifications.Post(new SimpleErrorNotification
+                                {
+                                    Text = "This feature can be used only in Main menu!"
+                                });
                                 return;
+                            }
 
                             var settingOverlay = getSettingsOverlay(game);
                             screenStack?.Push(new VisualizerScreen());
