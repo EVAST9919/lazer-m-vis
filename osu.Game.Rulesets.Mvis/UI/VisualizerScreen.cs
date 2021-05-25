@@ -15,6 +15,8 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Stores;
 using osu.Framework.Input.Bindings;
 using osu.Game.Input.Bindings;
+using osu.Framework.Utils;
+using osu.Framework.Input.Events;
 
 namespace osu.Game.Rulesets.Mvis.UI
 {
@@ -37,6 +39,7 @@ namespace osu.Game.Rulesets.Mvis.UI
         private BeatmapLogo logo;
         private MusicVisualizer visualizer;
         private Particles particles;
+        private VisualizerSettings settings;
 
         [BackgroundDependencyLoader]
         private void load()
@@ -44,17 +47,40 @@ namespace osu.Game.Rulesets.Mvis.UI
             AddRangeInternal(new Drawable[]
             {
                 particles = new Particles(),
-                new Container
+                new GridContainer
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Child = visualizer = new MusicVisualizer
+                    RowDimensions = new[]
                     {
-                        RelativePositionAxes = Axes.Both
+                        new Dimension()
+                    },
+                    ColumnDimensions = new[]
+                    {
+                        new Dimension(),
+                        new Dimension(GridSizeMode.AutoSize)
+                    },
+                    Content = new[]
+                    {
+                        new Drawable[]
+                        {
+                            new Container
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Children = new Drawable[]
+                                {
+                                    visualizer = new MusicVisualizer
+                                    {
+                                        RelativePositionAxes = Axes.Both
+                                    },
+                                    logo = new BeatmapLogo
+                                    {
+                                        RelativePositionAxes = Axes.Both
+                                    }
+                                }
+                            },
+                            settings = new VisualizerSettings()
+                        }
                     }
-                },
-                logo = new BeatmapLogo
-                {
-                    RelativePositionAxes = Axes.Both
                 }
             });
 
@@ -143,6 +169,28 @@ namespace osu.Game.Rulesets.Mvis.UI
 
         public void OnReleased(GlobalAction action)
         {
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (settings.IsVisible.Value)
+                return;
+
+            var cursorPosition = ToLocalSpace(GetContainingInputManager().CurrentState.Mouse.Position);
+
+            if (Precision.AlmostEquals(cursorPosition.X, DrawWidth, 1))
+                settings.IsVisible.Value = true;
+        }
+
+        protected override bool OnClick(ClickEvent e)
+        {
+            if (!settings.IsVisible.Value)
+                return false;
+
+            settings.IsVisible.Value = false;
+            return true;
         }
     }
 }

@@ -10,7 +10,6 @@ using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Game.Screens;
 using osu.Game.Screens.Menu;
-using osu.Game.Screens.Play;
 using osuTK;
 
 namespace osu.Game.Rulesets.Mvis.UI
@@ -211,7 +210,7 @@ namespace osu.Game.Rulesets.Mvis.UI
 
         private static SettingsOverlay getSettingsOverlay(OsuGame game) => game.ChildrenOfType<SettingsOverlay>().FirstOrDefault();
 
-        private class PositionSlider : OsuSliderBar<float>
+        public class PositionSlider : OsuSliderBar<float>
         {
             public override string TooltipText => Current.Value.ToString(@"0.##");
         }
