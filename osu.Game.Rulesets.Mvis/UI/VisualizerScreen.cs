@@ -171,17 +171,22 @@ namespace osu.Game.Rulesets.Mvis.UI
         {
         }
 
-        protected override void Update()
+        protected override bool OnMouseMove(MouseMoveEvent e)
         {
-            base.Update();
+            base.OnMouseMove(e);
 
             if (settings.IsVisible.Value)
-                return;
+                return false;
 
-            var cursorPosition = ToLocalSpace(GetContainingInputManager().CurrentState.Mouse.Position);
+            var cursorPosition = ToLocalSpace(e.CurrentState.Mouse.Position);
 
             if (Precision.AlmostEquals(cursorPosition.X, DrawWidth, 1))
+            {
                 settings.IsVisible.Value = true;
+                return true;
+            }
+
+            return false;
         }
 
         protected override bool OnClick(ClickEvent e)
