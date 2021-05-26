@@ -32,13 +32,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 dotSize = new Vector2((float)BarWidth);
             }
 
-            protected override void DrawBar(int index, float spacing, Vector2 inflation)
+            protected override void DrawBar(int index, float data, float spacing, Vector2 inflation)
             {
                 float rotation = MathHelper.DegreesToRadians(index * spacing - 90);
                 float rotationCos = MathF.Cos(rotation);
                 float rotationSin = MathF.Sin(rotation);
 
-                var scale = (AudioData[index] * 2 + Size.X) / Size.X;
+                var scale = (data * 2 + Size.X) / Size.X;
                 var multiplier = 1f / (scale * 2);
 
                 var dotPosition = new Vector2(rotationCos / 2 + multiplier, rotationSin / 2 + multiplier) * Size.X * scale;

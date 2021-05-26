@@ -89,17 +89,17 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             var diff = (float)Clock.ElapsedFrameTime;
 
             for (int i = 0; i < barCount; i++)
-                UpdateData(i, diff, Reversed.Value);
+                UpdateData(i, diff);
 
             PostUpdate();
 
             Invalidate(Invalidation.DrawNode);
         }
 
-        protected virtual void UpdateData(int index, float timeDifference, bool reversed)
+        protected virtual void UpdateData(int index, float timeDifference)
         {
             currentRawAudioData[index] -= maxBarValues[index] / Decay.Value * timeDifference;
-            smoothAudioData[reversed ? barCount - index - 1 : index] = currentRawAudioData[index] * HeightMultiplier.Value;
+            smoothAudioData[index] = currentRawAudioData[index] * HeightMultiplier.Value;
         }
 
         protected virtual float SmoothMultiplier => 1f;
@@ -136,6 +136,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             protected Texture Texture;
             protected Vector2 Size;
             protected double BarWidth;
+            protected bool Reversed;
 
             public VisualizerDrawNode(MusicVisualizerDrawable source)
                 : base(source)
@@ -150,6 +151,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 Texture = Source.Texture;
                 Size = Source.DrawSize;
                 BarWidth = Source.BarWidth.Value;
+                Reversed = Source.Reversed.Value;
 
                 AudioData.Clear();
                 AudioData.AddRange(Source.smoothAudioData);
@@ -171,7 +173,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                     PreCompute();
 
                     for (int i = 0; i < AudioData.Count; i++)
-                        DrawBar(i, spacing, inflation);
+                        DrawBar(Reversed ? AudioData.Count - 1 - i : i, AudioData[i], spacing, inflation);
 
                     shader.Unbind();
                 }
@@ -181,7 +183,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             {
             }
 
-            protected abstract void DrawBar(int index, float spacing, Vector2 inflation);
+            protected abstract void DrawBar(int index, float data, float spacing, Vector2 inflation);
 
             protected override void Dispose(bool isDisposing)
             {

@@ -43,10 +43,10 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                 barY = getBarPositionY();
             }
 
-            protected override void DrawBar(int index, float spacing, Vector2 inflation)
+            protected override void DrawBar(int index, float data, float spacing, Vector2 inflation)
             {
                 var barPosition = new Vector2(index * spacing, barY);
-                var barSize = new Vector2((float)BarWidth, 2 + AudioData[index]);
+                var barSize = new Vector2((float)BarWidth, 2 + data);
 
                 DrawQuad(
                     Texture,
