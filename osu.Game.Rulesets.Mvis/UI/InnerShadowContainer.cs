@@ -26,6 +26,11 @@ namespace osu.Game.Rulesets.Mvis.UI
             Masking = true;
             InternalChildren = new Drawable[]
             {
+                mainShadow = new Box
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.Black
+                },
                 content = CreateContent(),
                 blur = new BufferedContainer
                 {
@@ -48,11 +53,6 @@ namespace osu.Game.Rulesets.Mvis.UI
                             }
                         }
                     }
-                },
-                mainShadow = new Box
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Black
                 }
             };
         }
@@ -73,7 +73,7 @@ namespace osu.Game.Rulesets.Mvis.UI
 
             outherShadow.BorderThickness = Depth.Value;
             blur.BlurSigma = new Vector2(Depth.Value);
-            mainShadow.Alpha = Math.Clamp(Depth.Value / 100, 0, 0.8f);
+            mainShadow.Alpha = Math.Clamp(Depth.Value / 200, 0, 0.8f);
         }
 
         protected override void Update()

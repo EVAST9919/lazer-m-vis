@@ -1,8 +1,7 @@
 ﻿using osu.Framework.Bindables;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
@@ -74,23 +73,19 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings
 
             private readonly OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Pink);
 
-            private readonly Box shadow;
-
             public SettingsContent()
             {
                 RelativeSizeAxes = Axes.Y;
                 Width = width;
+                Masking = true;
+                EdgeEffect = new EdgeEffectParameters
+                {
+                    Colour = Color4.Black,
+                    Radius = 15,
+                    Type = EdgeEffectType.Shadow
+                };
                 InternalChildren = new Drawable[]
                 {
-                    shadow = new Box
-                    {
-                        RelativeSizeAxes = Axes.Y,
-                        Width = 10,
-                        Colour = ColourInfo.GradientHorizontal(Color4.Black.Opacity(0), Color4.Black.Opacity(0.4f)),
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreRight,
-                        X = 1,
-                    },
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
@@ -128,7 +123,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings
 
                 IsVisible.BindValueChanged(visible =>
                 {
-                    shadow.FadeTo(visible.NewValue ? 1 : 0, duration, Easing.OutQuint);
+                    FadeEdgeEffectTo(visible.NewValue ? 0.6f : 0, duration, Easing.OutQuint);
                 }, true);
             }
         }

@@ -1,8 +1,6 @@
 ﻿using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Game.Graphics;
-using osu.Game.Graphics.Sprites;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.Mvis.UI;
 using osu.Game.Tests.Visual;
@@ -39,22 +37,12 @@ namespace osu.Game.Rulesets.Mvis.Tests
             base.LoadComplete();
 
             AddSliderStep("Depth", 0, 100, 10, d => testContainer.Depth.Value = d);
-            AddSliderStep("Corner radius", 0, 100, 10, c => testContainer.CornerRadius.Value = c);
+            AddSliderStep("Corner radius", 0, 200, 10, c => testContainer.CornerRadius.Value = c);
         }
 
         private class TestContainer : InnerShadowContainer
         {
-            protected override Container<Drawable> CreateContent() => new Container
-            {
-                RelativeSizeAxes = Axes.Both,
-                Child = new OsuSpriteText
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    Text = "Test",
-                    Font = OsuFont.GetFont(size: 30)
-                }
-            };
+            protected override Container<Drawable> CreateContent() => new Container();
         }
     }
 }
