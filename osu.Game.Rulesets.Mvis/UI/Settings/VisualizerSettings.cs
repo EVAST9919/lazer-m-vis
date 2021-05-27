@@ -100,14 +100,15 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings
                             Padding = new MarginPadding { Horizontal = 15 },
                             AutoSizeAxes = Axes.Y,
                             Margin = new MarginPadding { Vertical = 10 },
-                            Child = new FillFlowContainer
+                            Child = new FillFlowContainer<Section>
                             {
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
                                 Direction = FillDirection.Vertical,
                                 Spacing = new Vector2(0, 10),
-                                Children = new Drawable[]
+                                Children = new Section[]
                                 {
+                                    new TrackSection(),
                                     new RulesetSection(),
                                     new GameSection()
                                 }
