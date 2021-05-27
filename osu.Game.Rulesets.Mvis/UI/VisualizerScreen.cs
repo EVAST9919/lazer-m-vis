@@ -17,6 +17,7 @@ using osu.Framework.Input.Bindings;
 using osu.Game.Input.Bindings;
 using osu.Framework.Utils;
 using osu.Framework.Input.Events;
+using osu.Game.Rulesets.Mvis.UI.Settings;
 
 namespace osu.Game.Rulesets.Mvis.UI
 {
