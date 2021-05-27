@@ -20,6 +20,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings.Sections
         {
             AddRange(new Drawable[]
             {
+                new TrackController(),
                 new SettingsCheckbox
                 {
                     LabelText = "Loop Current Track",
