@@ -1,13 +1,11 @@
-﻿using System.Linq;
-using osu.Framework.Allocation;
+﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Testing;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Mvis.Configuration;
-using osu.Game.Screens;
+using osu.Game.Rulesets.Mvis.Extensions;
 using osu.Game.Screens.Menu;
 
 namespace osu.Game.Rulesets.Mvis.UI
@@ -41,7 +39,7 @@ namespace osu.Game.Rulesets.Mvis.UI
                     {
                         try
                         {
-                            var screenStack = getScreenStack(game);
+                            var screenStack = game.GetScreenStack();
                             if (!(screenStack.CurrentScreen is MainMenu))
                             {
                                 notifications.Post(new SimpleErrorNotification
@@ -51,7 +49,7 @@ namespace osu.Game.Rulesets.Mvis.UI
                                 return;
                             }
 
-                            var settingOverlay = getSettingsOverlay(game);
+                            var settingOverlay = game.GetSettingsOverlay();
                             screenStack?.Push(new VisualizerScreen());
                             settingOverlay?.Hide();
                         }
@@ -62,10 +60,6 @@ namespace osu.Game.Rulesets.Mvis.UI
                 }
             };
         }
-
-        private static OsuScreenStack getScreenStack(OsuGame game) => game.ChildrenOfType<OsuScreenStack>().FirstOrDefault();
-
-        private static SettingsOverlay getSettingsOverlay(OsuGame game) => game.ChildrenOfType<SettingsOverlay>().FirstOrDefault();
 
         public class PositionSlider : OsuSliderBar<float>
         {
