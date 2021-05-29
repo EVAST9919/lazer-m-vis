@@ -13,13 +13,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         private float[] maxFallBarValues;
         private float[] smoothFallAudioData;
 
-        protected override void ResetArrays(int barCount)
+        protected override void ResetArrays()
         {
-            base.ResetArrays(barCount);
+            base.ResetArrays();
 
-            currentRawFallAudioData = new float[barCount];
-            maxFallBarValues = new float[barCount];
-            smoothFallAudioData = new float[barCount];
+            currentRawFallAudioData = new float[AdjustedBarCount];
+            maxFallBarValues = new float[AdjustedBarCount];
+            smoothFallAudioData = new float[AdjustedBarCount];
         }
 
         protected override void ApplyData(int index, float newRawAudioDataAtIndex)
@@ -45,7 +45,8 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         {
             base.PostUpdate();
 
-            smoothFallAudioData.Smooth(Math.Max((int)Math.Round(BarCount.Value * 0.003f * 360f / DegreeValue.Value), 1));
+            if (Smoothness.Value > 0)
+                smoothFallAudioData.Smooth(Math.Min(Smoothness.Value, AdjustedBarCount / 2));
         }
 
         protected override CircularVisualizerDrawNode CreateCircularVisualizerDrawNode() => new FallVisualizerDrawNode(this);

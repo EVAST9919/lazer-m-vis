@@ -39,6 +39,7 @@ namespace osu.Game.Rulesets.Mvis.Tests
             AddSliderStep("Bar count", 0, 3500, 3500, count => visuals.ForEach(v => ((MusicVisualizerDrawable)v).BarCount.Value = count));
             AddSliderStep("Bar width", 1f, 50f, 1f, width => visuals.ForEach(v => ((MusicVisualizerDrawable)v).BarWidth.Value = width));
             AddSliderStep("Decay", 1, 500, 200, decay => visuals.ForEach(v => ((MusicVisualizerDrawable)v).Decay.Value = decay));
+            AddSliderStep("Smoothness", 0, 50, 0, s => visuals.ForEach(v => ((MusicVisualizerDrawable)v).Smoothness.Value = s));
             AddSliderStep("Degree value", 0f, 360f, 360f, degree => visuals.ForEach(v =>
             {
                 if (v is CircularMusicVisualizerDrawable c)

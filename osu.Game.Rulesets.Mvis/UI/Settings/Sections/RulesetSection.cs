@@ -75,6 +75,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings.Sections
                 },
                 new SettingsSlider<int>
                 {
+                    LabelText = "Smoothness",
+                    Current = config.GetBindable<int>(MvisRulesetSetting.Smoothness),
+                    KeyboardStep = 1
+                },
+                new SettingsSlider<int>
+                {
                     LabelText = "Rotation",
                     KeyboardStep = 1,
                     Current = config.GetBindable<int>(MvisRulesetSetting.Rotation)

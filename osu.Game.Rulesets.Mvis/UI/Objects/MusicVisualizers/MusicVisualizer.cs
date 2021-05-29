@@ -21,6 +21,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         private readonly Bindable<int> multiplier = new Bindable<int>(400);
         private readonly Bindable<BarType> type = new Bindable<BarType>(BarType.Fall);
         private readonly Bindable<bool> symmetry = new Bindable<bool>(true);
+        private readonly Bindable<int> smoothness = new Bindable<int>();
 
         [BackgroundDependencyLoader]
         private void load()
@@ -36,6 +37,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             config?.BindWith(MvisRulesetSetting.Decay, decay);
             config?.BindWith(MvisRulesetSetting.Multiplier, multiplier);
             config?.BindWith(MvisRulesetSetting.Symmetry, symmetry);
+            config?.BindWith(MvisRulesetSetting.Smoothness, smoothness);
         }
 
         protected override void LoadComplete()
@@ -67,6 +69,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
                     v.BarWidth.BindTo(barWidth);
                     v.Decay.BindTo(decay);
                     v.HeightMultiplier.BindTo(multiplier);
+                    v.Smoothness.BindTo(smoothness);
 
                     if (symmetry.Value)
                         v.Reversed.Value = i % 2 == 0;

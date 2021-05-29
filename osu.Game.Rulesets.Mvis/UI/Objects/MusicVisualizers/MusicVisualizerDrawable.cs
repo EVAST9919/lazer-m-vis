@@ -23,6 +23,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         public readonly Bindable<int> Decay = new Bindable<int>(200);
         public readonly Bindable<int> HeightMultiplier = new Bindable<int>(400);
         public readonly Bindable<bool> Reversed = new Bindable<bool>();
+        public readonly Bindable<int> Smoothness = new Bindable<int>();
 
         public Texture Texture { get; protected set; }
 
@@ -43,33 +44,41 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
         {
             base.LoadComplete();
 
-            Decay.BindValueChanged(_ => ResetArrays(barCount));
-            Reversed.BindValueChanged(_ => ResetArrays(barCount));
-            BarCount.BindValueChanged(c =>
-            {
-                barCount = c.NewValue;
-                ResetArrays(barCount);
-            }, true);
+            Decay.BindValueChanged(_ => ResetArrays());
+            Reversed.BindValueChanged(_ => ResetArrays());
+            Smoothness.BindValueChanged(_ => ResetArrays());
+            BarCount.BindValueChanged(c => ResetArrays(), true);
         }
 
         private float[] currentRawAudioData;
         private float[] maxBarValues;
         private float[] smoothAudioData;
 
-        private int barCount;
+        protected int AdjustedBarCount;
+        private int barsToFill = 0; // How much bars are needed to fill the gap between real amplitudes
 
-        protected virtual void ResetArrays(int barCount)
+        protected virtual void ResetArrays()
         {
-            currentRawAudioData = new float[barCount];
-            maxBarValues = new float[barCount];
-            smoothAudioData = new float[barCount];
+            if (BarCount.Value > used_amplitude_count)
+            {
+                barsToFill = (int)Math.Ceiling((float)BarCount.Value / used_amplitude_count);
+                AdjustedBarCount = used_amplitude_count * barsToFill;
+            }
+            else
+            {
+                AdjustedBarCount = BarCount.Value;
+            }
+
+            currentRawAudioData = new float[AdjustedBarCount];
+            maxBarValues = new float[AdjustedBarCount];
+            smoothAudioData = new float[AdjustedBarCount];
         }
 
         public void SetAmplitudes(float[] amplitudes)
         {
             var newRawAudioData = getConvertedAmplitudes(amplitudes);
 
-            for (int i = 0; i < barCount; i++)
+            for (int i = 0; i < AdjustedBarCount; i++)
                 ApplyData(i, newRawAudioData[i]);
         }
 
@@ -88,7 +97,7 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
 
             var diff = (float)Clock.ElapsedFrameTime;
 
-            for (int i = 0; i < barCount; i++)
+            for (int i = 0; i < AdjustedBarCount; i++)
                 UpdateData(i, diff);
 
             PostUpdate();
@@ -102,24 +111,39 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
             smoothAudioData[index] = currentRawAudioData[index] * HeightMultiplier.Value;
         }
 
-        protected virtual float SmoothMultiplier => 1f;
-
         protected virtual void PostUpdate()
         {
-            smoothAudioData.Smooth(Math.Max((int)Math.Round(barCount * 0.003f * SmoothMultiplier), 1));
+            if (Smoothness.Value > 0)
+                smoothAudioData.Smooth(Math.Min(Smoothness.Value, AdjustedBarCount / 2));
         }
 
         private float[] getConvertedAmplitudes(float[] amplitudes)
         {
-            var amps = new float[barCount];
+            var amps = new float[AdjustedBarCount];
 
-            for (int i = 0; i < barCount; i++)
-                amps[i] = amplitudes[getAmpIndexForBar(i)];
+            var lerp = AdjustedBarCount != BarCount.Value;
+
+            if (lerp)
+            {
+                for (int i = 0; i < used_amplitude_count; i++)
+                {
+                    for (int j = 0; j < barsToFill; j++)
+                    {
+                        var realValue = amplitudes[i];
+                        var nextValue = amplitudes[i + 1];
+
+                        amps[i * barsToFill + j] = MathExtensions.Map(j, 0, barsToFill, realValue, nextValue);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < AdjustedBarCount; i++)
+                    amps[i] = amplitudes[(int)MathExtensions.Map(i, 0, AdjustedBarCount, 0, used_amplitude_count)];
+            }
 
             return amps;
         }
-
-        private int getAmpIndexForBar(int barIndex) => (int)Math.Round((float)used_amplitude_count / barCount * barIndex);
 
         protected override DrawNode CreateDrawNode() => CreateVisualizerDrawNode();
 

@@ -7,8 +7,6 @@ namespace osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers
     {
         public readonly Bindable<float> DegreeValue = new Bindable<float>();
 
-        protected override float SmoothMultiplier => 360f / DegreeValue.Value;
-
         protected override VisualizerDrawNode CreateVisualizerDrawNode() => CreateCircularVisualizerDrawNode();
 
         protected abstract CircularVisualizerDrawNode CreateCircularVisualizerDrawNode();
