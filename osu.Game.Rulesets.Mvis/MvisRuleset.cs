@@ -11,7 +11,6 @@ using osu.Framework.Graphics.Textures;
 using osu.Game.Rulesets.Mvis.UI;
 using osu.Game.Rulesets.Mvis.Beatmaps;
 using osu.Game.Rulesets.Mvis.Difficulty;
-using osu.Game.Rulesets.Mvis.Mods;
 using osu.Game.Rulesets.Configuration;
 using osu.Game.Configuration;
 using osu.Game.Rulesets.Mvis.Configuration;
@@ -42,21 +41,7 @@ namespace osu.Game.Rulesets.Mvis
 
         public override DifficultyCalculator CreateDifficultyCalculator(WorkingBeatmap beatmap) => new MvisDifficultyCalculator(this, beatmap);
 
-        public override IEnumerable<Mod> GetModsFor(ModType type)
-        {
-            switch (type)
-            {
-                case ModType.Fun:
-                    return new Mod[]
-                    {
-                        new MultiMod(new MvisModHalfTime(), new MvisModDaycore()),
-                        new MultiMod(new MvisModDoubleTime(), new MvisModNightcore()),
-                    };
-
-                default:
-                    return Array.Empty<Mod>();
-            }
-        }
+        public override IEnumerable<Mod> GetModsFor(ModType type) => Array.Empty<Mod>();
 
         protected override IEnumerable<HitResult> GetValidHitResults() => new[]
         {

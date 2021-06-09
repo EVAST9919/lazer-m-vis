@@ -16,13 +16,8 @@ namespace osu.Game.Rulesets.Mvis.Difficulty
         {
         }
 
-        protected override DifficultyAttributes CreateDifficultyAttributes(IBeatmap beatmap, Mod[] mods, Skill[] skills, double clockRate)
-        {
-            return new DifficultyAttributes
-            {
-                StarRating = 1
-            };
-        }
+        protected override DifficultyAttributes CreateDifficultyAttributes(IBeatmap beatmap, Mod[] mods, Skill[] skills, double starRating)
+            => new DifficultyAttributes(mods, skills, starRating);
 
         protected override IEnumerable<DifficultyHitObject> CreateDifficultyHitObjects(IBeatmap beatmap, double clockRate) => Enumerable.Empty<DifficultyHitObject>();
 
