@@ -1,8 +1,5 @@
 ﻿using osu.Framework.Graphics;
-using osu.Game.Beatmaps;
 using osuTK.Graphics;
-using osu.Game.Screens.Play;
-using osu.Framework.Screens;
 using osu.Game.Rulesets.Mvis.UI.Objects;
 using osu.Game.Rulesets.Mvis.UI.Objects.MusicVisualizers;
 using osu.Game.Rulesets.Mvis.Configuration;
@@ -10,23 +7,14 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
 using osuTK;
-using osu.Game.Rulesets.Mvis.Extensions;
-using osu.Framework.Graphics.Textures;
-using osu.Framework.IO.Stores;
-using osu.Framework.Input.Bindings;
-using osu.Game.Input.Bindings;
 using osu.Framework.Utils;
 using osu.Framework.Input.Events;
 using osu.Game.Rulesets.Mvis.UI.Settings;
 
 namespace osu.Game.Rulesets.Mvis.UI
 {
-    public class VisualizerScreen : ScreenWithBeatmapBackground, IKeyBindingHandler<GlobalAction>
+    public class VisualizerScreen : RulesetScreen
     {
-        public override bool AllowBackButton => false;
-
-        private MvisRulesetConfigManager config;
-
         private readonly Bindable<bool> showParticles = new Bindable<bool>(true);
         private readonly Bindable<float> xPos = new Bindable<float>(0.5f);
         private readonly Bindable<float> yPos = new Bindable<float>(0.5f);
@@ -85,22 +73,20 @@ namespace osu.Game.Rulesets.Mvis.UI
                 }
             });
 
-            config?.BindWith(MvisRulesetSetting.ShowParticles, showParticles);
-            config?.BindWith(MvisRulesetSetting.LogoPositionX, xPos);
-            config?.BindWith(MvisRulesetSetting.LogoPositionY, yPos);
-            config?.BindWith(MvisRulesetSetting.Radius, radius);
+            Config?.BindWith(MvisRulesetSetting.ShowParticles, showParticles);
+            Config?.BindWith(MvisRulesetSetting.LogoPositionX, xPos);
+            Config?.BindWith(MvisRulesetSetting.LogoPositionY, yPos);
+            Config?.BindWith(MvisRulesetSetting.Radius, radius);
 
-            config?.BindWith(MvisRulesetSetting.Red, red);
-            config?.BindWith(MvisRulesetSetting.Green, green);
-            config?.BindWith(MvisRulesetSetting.Blue, blue);
-            config?.BindWith(MvisRulesetSetting.UseCustomColour, useCustomColour);
+            Config?.BindWith(MvisRulesetSetting.Red, red);
+            Config?.BindWith(MvisRulesetSetting.Green, green);
+            Config?.BindWith(MvisRulesetSetting.Blue, blue);
+            Config?.BindWith(MvisRulesetSetting.UseCustomColour, useCustomColour);
         }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
-
-            Beatmap.BindValueChanged(b => updateComponentFromBeatmap(b.NewValue));
 
             radius.BindValueChanged(r =>
             {
@@ -118,58 +104,10 @@ namespace osu.Game.Rulesets.Mvis.UI
             useCustomColour.BindValueChanged(_ => updateColour(), true);
         }
 
-        private DependencyContainer dependencies;
-
-        protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
-        {
-            dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
-            var mvisRuleset = dependencies.GetRuleset();
-
-            // Add ruleset textures to texture store.
-            dependencies.Get<TextureStore>().AddStore(new TextureLoaderStore(new NamespacedResourceStore<byte[]>(mvisRuleset.CreateResourceStore(), @"Textures")));
-
-            config = dependencies.Get<RulesetConfigCache>().GetConfigFor(mvisRuleset) as MvisRulesetConfigManager;
-            if (config != null)
-                dependencies.Cache(config);
-
-            return dependencies;
-        }
-
         private void updateColour()
         {
             logo.Colour = visualizer.Colour = particles.Colour
                 = useCustomColour.Value ? new Color4(red.Value / 255f, green.Value / 255f, blue.Value / 255f, 1) : Color4.White;
-        }
-
-        public override void OnEntering(IScreen last)
-        {
-            base.OnEntering(last);
-            updateComponentFromBeatmap(Beatmap.Value);
-        }
-
-        private void updateComponentFromBeatmap(WorkingBeatmap beatmap)
-        {
-            ApplyToBackground(b =>
-            {
-                b.IgnoreUserSettings.Value = false;
-                b.Beatmap = beatmap;
-            });
-        }
-
-        public bool OnPressed(GlobalAction action)
-        {
-            switch (action)
-            {
-                case GlobalAction.Back:
-                    this.Exit();
-                    return true;
-            }
-
-            return false;
-        }
-
-        public void OnReleased(GlobalAction action)
-        {
         }
 
         protected override bool OnMouseMove(MouseMoveEvent e)
