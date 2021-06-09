@@ -29,8 +29,6 @@ namespace osu.Game.Rulesets.Mvis.UI
 
         protected override ReplayInputHandler CreateReplayInputHandler(Replay replay) => new MvisFramedReplayInputHandler(replay);
 
-        public override bool AllowGameplayOverlays => false;
-
         public override DrawableHitObject<MvisHitObject> CreateDrawableRepresentation(MvisHitObject h)
         {
             switch (h)
