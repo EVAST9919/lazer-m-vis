@@ -16,7 +16,6 @@ using osu.Game.Storyboards.Drawables;
 using osu.Framework.Timing;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Configuration;
-using osu.Framework.Extensions.Color4Extensions;
 
 namespace osu.Game.Rulesets.Mvis.UI
 {
