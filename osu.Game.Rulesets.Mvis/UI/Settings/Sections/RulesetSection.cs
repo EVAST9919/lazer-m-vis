@@ -22,6 +22,11 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings.Sections
             {
                 new SettingsCheckbox
                 {
+                    LabelText = "Show storyboard (if available)",
+                    Current = config.GetBindable<bool>(MvisRulesetSetting.StoryboardBackground)
+                },
+                new SettingsCheckbox
+                {
                     LabelText = "Show particles",
                     Current = config.GetBindable<bool>(MvisRulesetSetting.ShowParticles)
                 },

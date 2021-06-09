@@ -10,11 +10,21 @@ using osuTK;
 using osu.Framework.Utils;
 using osu.Framework.Input.Events;
 using osu.Game.Rulesets.Mvis.UI.Settings;
+using osu.Game.Beatmaps;
+using System.Threading;
+using osu.Game.Storyboards.Drawables;
+using osu.Framework.Timing;
+using osu.Framework.Graphics.Shapes;
+using osu.Game.Configuration;
+using osu.Framework.Extensions.Color4Extensions;
 
 namespace osu.Game.Rulesets.Mvis.UI
 {
     public class VisualizerScreen : RulesetScreen
     {
+        private readonly Bindable<bool> useStoryboard = new Bindable<bool>();
+        private readonly BindableDouble dim = new BindableDouble();
+
         private readonly Bindable<bool> showParticles = new Bindable<bool>(true);
         private readonly Bindable<float> xPos = new Bindable<float>(0.5f);
         private readonly Bindable<float> yPos = new Bindable<float>(0.5f);
@@ -29,12 +39,17 @@ namespace osu.Game.Rulesets.Mvis.UI
         private MusicVisualizer visualizer;
         private Particles particles;
         private VisualizerSettings settings;
+        private Container storyboardHolder;
 
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(OsuConfigManager osuConfig)
         {
             AddRangeInternal(new Drawable[]
             {
+                storyboardHolder = new Container
+                {
+                    RelativeSizeAxes = Axes.Both
+                },
                 particles = new Particles(),
                 new GridContainer
                 {
@@ -73,7 +88,10 @@ namespace osu.Game.Rulesets.Mvis.UI
                 }
             });
 
-            Config?.BindWith(MvisRulesetSetting.ShowParticles, showParticles);
+            Config?.BindWith(MvisRulesetSetting.StoryboardBackground, useStoryboard);
+            osuConfig?.BindWith(OsuSetting.DimLevel, dim);
+
+            Config?.BindWith(MvisRulesetSetting.ShowParticles, showParticles);            
             Config?.BindWith(MvisRulesetSetting.LogoPositionX, xPos);
             Config?.BindWith(MvisRulesetSetting.LogoPositionY, yPos);
             Config?.BindWith(MvisRulesetSetting.Radius, radius);
@@ -102,7 +120,72 @@ namespace osu.Game.Rulesets.Mvis.UI
             green.BindValueChanged(_ => updateColour());
             blue.BindValueChanged(_ => updateColour());
             useCustomColour.BindValueChanged(_ => updateColour(), true);
+
+            dim.BindValueChanged(_ => updateStoryboardDim());
+            useStoryboard.BindValueChanged(_ => updateStoryboard(Beatmap.Value));
         }
+
+        protected override void OnBeatmapUpdate(WorkingBeatmap beatmap)
+        {
+            base.OnBeatmapUpdate(beatmap);
+            updateStoryboard(beatmap);
+        }
+
+        private CancellationTokenSource cancellationToken;
+        private AudioContainer storyboard;
+
+        private void updateStoryboard(WorkingBeatmap beatmap)
+        {
+            cancellationToken?.Cancel();
+            storyboard?.FadeOut(250, Easing.OutQuint).Expire();
+            storyboard = null;
+
+            if (!useStoryboard.Value)
+                return;
+
+            if (!beatmap.Storyboard.HasDrawable)
+                return;
+
+            Drawable layer;
+
+            if (beatmap.Storyboard.ReplacesBackground)
+            {
+                layer = new Box
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.Black
+                };
+            }
+            else
+            {
+                layer = new BeatmapBackground(beatmap);
+            }
+
+            LoadComponentAsync(new AudioContainer
+            {
+                RelativeSizeAxes = Axes.Both,
+                Volume = { Value = 0 },
+                Alpha = 0,
+                Colour = getStoryboardColour,
+                Children = new Drawable[]
+                {
+                    layer,
+                    new DrawableStoryboard(beatmap.Storyboard) { Clock = new InterpolatingFramedClock(beatmap.Track) }
+                }
+            }, loaded =>
+            {
+                storyboardHolder.Add(storyboard = loaded);
+                loaded.FadeIn(250, Easing.OutQuint);
+            }, (cancellationToken = new CancellationTokenSource()).Token);
+        }
+
+        private void updateStoryboardDim()
+        {
+            if (storyboard != null)
+                storyboard.Colour = getStoryboardColour;
+        }
+
+        private Color4 getStoryboardColour => new Color4(1 - (float)dim.Value, 1 - (float)dim.Value, 1 - (float)dim.Value, 1);
 
         private void updateColour()
         {

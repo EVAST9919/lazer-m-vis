@@ -39,16 +39,16 @@ namespace osu.Game.Rulesets.Mvis.UI
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            Beatmap.BindValueChanged(b => updateComponentFromBeatmap(b.NewValue));
+            Beatmap.BindValueChanged(b => OnBeatmapUpdate(b.NewValue));
         }
 
         public override void OnEntering(IScreen last)
         {
             base.OnEntering(last);
-            updateComponentFromBeatmap(Beatmap.Value);
+            OnBeatmapUpdate(Beatmap.Value);
         }
 
-        private void updateComponentFromBeatmap(WorkingBeatmap beatmap)
+        protected virtual void OnBeatmapUpdate(WorkingBeatmap beatmap)
         {
             ApplyToBackground(b =>
             {

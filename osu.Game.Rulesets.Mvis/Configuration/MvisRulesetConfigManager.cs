@@ -31,6 +31,7 @@ namespace osu.Game.Rulesets.Mvis.Configuration
             SetDefault(MvisRulesetSetting.LogoPositionY, 0.5f, 0, 1);
             SetDefault(MvisRulesetSetting.Symmetry, false);
             SetDefault(MvisRulesetSetting.Smoothness, 1, 0, 50);
+            SetDefault(MvisRulesetSetting.StoryboardBackground, false);
         }
     }
 
@@ -53,7 +54,8 @@ namespace osu.Game.Rulesets.Mvis.Configuration
         LogoPositionX,
         LogoPositionY,
         Symmetry,
-        Smoothness
+        Smoothness,
+        StoryboardBackground
     }
 
     public enum BarType
