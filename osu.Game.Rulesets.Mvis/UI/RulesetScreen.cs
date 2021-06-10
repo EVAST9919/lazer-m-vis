@@ -4,10 +4,10 @@ using osu.Framework.Screens;
 using osu.Game.Rulesets.Mvis.Configuration;
 using osu.Framework.Allocation;
 using osu.Game.Rulesets.Mvis.Extensions;
-using osu.Framework.Graphics.Textures;
-using osu.Framework.IO.Stores;
 using osu.Framework.Input.Bindings;
 using osu.Game.Input.Bindings;
+using osu.Game.Rulesets.UI;
+using osu.Game.Screens;
 
 namespace osu.Game.Rulesets.Mvis.UI
 {
@@ -17,23 +17,14 @@ namespace osu.Game.Rulesets.Mvis.UI
 
         protected MvisRulesetConfigManager Config { get; private set; }
 
-        private DependencyContainer dependencies;
-
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         {
-            dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
-            var mvisRuleset = dependencies.GetRuleset();
+            var baseDependencies = new DependencyContainer(base.CreateChildDependencies(parent));
+            var ruleset = baseDependencies.GetRuleset();
 
-            // Add ruleset textures to texture store.
-            dependencies.Get<TextureStore>().AddStore(new TextureLoaderStore(new NamespacedResourceStore<byte[]>(mvisRuleset.CreateResourceStore(), @"Textures")));
+            Config = (MvisRulesetConfigManager)baseDependencies.Get<RulesetConfigCache>().GetConfigFor(ruleset);
 
-            // Cache ruleset config
-            Config = (MvisRulesetConfigManager)dependencies.Get<RulesetConfigCache>().GetConfigFor(mvisRuleset);
-
-            if (Config != null)
-                dependencies.Cache(Config);
-
-            return dependencies;
+            return new OsuScreenDependencies(false, new DrawableRulesetDependencies(ruleset, baseDependencies));
         }
 
         protected override void LoadComplete()
