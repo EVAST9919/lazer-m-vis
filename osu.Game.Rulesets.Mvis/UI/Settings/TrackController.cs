@@ -11,6 +11,9 @@ using System;
 using osu.Framework.Graphics.Shapes;
 using osuTK.Graphics;
 using osu.Framework.Graphics.Sprites;
+using osu.Game.Beatmaps;
+using osu.Framework.Graphics.Textures;
+using osu.Framework.Bindables;
 
 namespace osu.Game.Rulesets.Mvis.UI.Settings
 {
@@ -22,8 +25,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings
         [Resolved]
         private MusicController musicController { get; set; }
 
+        [Resolved]
+        private Bindable<WorkingBeatmap> beatmap { get; set; }
+
         private IconButton playButton;
         private HoverableProgressBar progressBar;
+        private Container beatmapSpriteHolder;
 
         [BackgroundDependencyLoader]
         private void load(OsuColour colours)
@@ -38,6 +45,11 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings
                 {
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.Black.Opacity(0.5f)
+                },
+                beatmapSpriteHolder = new Container
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.DimGray
                 },
                 new FillFlowContainer<IconButton>
                 {
@@ -83,6 +95,28 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings
                     OnSeek = musicController.SeekTo
                 }
             };
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            musicController.TrackChanged += (track, direction) => trackChanged(track);
+            trackChanged(beatmap.Value);
+        }
+
+        private BeatmapSprite lastSprite;
+
+        private void trackChanged(WorkingBeatmap beatmap)
+        {
+            LoadComponentAsync(new BeatmapSprite(beatmap), loaded =>
+            {
+                if (lastSprite != null)
+                    lastSprite.FadeOut(300, Easing.OutQuint).Expire();
+
+                beatmapSpriteHolder.Add(lastSprite = loaded);
+                lastSprite.FadeInFromZero(300, Easing.OutQuint);
+            });
         }
 
         protected override void Update()
@@ -171,6 +205,26 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings
             {
                 this.ResizeHeightTo(progress_height / 2, 500, Easing.OutQuint);
                 base.OnHoverLost(e);
+            }
+        }
+
+        private class BeatmapSprite : Sprite
+        {
+            private readonly WorkingBeatmap beatmap;
+
+            public BeatmapSprite(WorkingBeatmap beatmap)
+            {
+                this.beatmap = beatmap;
+            }
+
+            [BackgroundDependencyLoader]
+            private void load(TextureStore textures)
+            {
+                RelativeSizeAxes = Axes.Both;
+                FillMode = FillMode.Fill;
+                Anchor = Anchor.Centre;
+                Origin = Anchor.Centre;
+                Texture = beatmap.Background ?? textures.Get("Backgrounds/bg4");
             }
         }
     }
