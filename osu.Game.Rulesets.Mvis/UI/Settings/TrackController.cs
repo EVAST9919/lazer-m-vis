@@ -101,13 +101,13 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings
         {
             base.LoadComplete();
 
-            musicController.TrackChanged += (track, direction) => trackChanged(track);
+            musicController.TrackChanged += trackChanged;
             trackChanged(beatmap.Value);
         }
 
         private BeatmapSprite lastSprite;
 
-        private void trackChanged(WorkingBeatmap beatmap)
+        private void trackChanged(WorkingBeatmap beatmap, TrackChangeDirection direction = TrackChangeDirection.None)
         {
             LoadComponentAsync(new BeatmapSprite(beatmap), loaded =>
             {
@@ -138,6 +138,12 @@ namespace osu.Game.Rulesets.Mvis.UI.Settings
                 progressBar.EndTime = 1;
                 playButton.Icon = FontAwesome.Regular.PlayCircle;
             }
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            musicController.TrackChanged -= trackChanged;
+            base.Dispose(isDisposing);
         }
 
         private class MusicIconButton : IconButton
